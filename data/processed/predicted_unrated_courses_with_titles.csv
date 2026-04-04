@@ -1,0 +1,183 @@
+COURSE_ID,TITLE,Database,Python,CloudComputing,DataAnalysis,Containers,MachineLearning,ComputerVision,DataScience,BigData,Chatbot,R,BackendDev,FrontendDev,Blockchain,num_genres,predicted_rating
+GPXX0ZG0EN,consuming restful services using the reactive jax rs client,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9826084446095233
+GPXX0Z2PEN,containerizing  packaging  and running a spring boot application,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,2.999772507269178
+GPXX0FTCEN,learn how to use docker containers for iterative development,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,2.9996748174253156
+GPXX06RFEN,create your first mongodb database,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9903328042001296
+GPXX0SDXEN,testing microservices with the arquillian managed container,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,2.9995166412548877
+GPXX0PICEN,create a cryptocurrency trading algorithm in python,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9984642950600064
+GPXX0W7KEN,securing java microservices with eclipse microprofile json web token  microprofile jwt ,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9980891438035773
+GPXX0A1YEN,validating constraints for javabeans in java microservices,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.999309641099211
+GPXX03HFEN,fundamentals of javascript through rock paper scissors,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,2.9918252477617227
+GPXX0IBEN,data science in insurance  basic statistical analysis ,0,0,0,1,0,1,0,1,0,0,0,0,0,0,3,2.3677339840718004
+GPXX0YXHEN,testing a microprofile or jakarta ee application using microshed testing with an open liberty docker container,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9230531754926696
+GPXX0BUBEN,insurance risk assessment with montecarlo method using apache spark ,0,0,0,0,0,1,0,0,1,0,0,0,0,0,2,2.9828886703885233
+GPXX04HEEN,insurance business modelling and basic actuarial calculations,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.995736431838839
+GPXX048OEN,action classification task based on internet firewall logs,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.999291529044848
+GPXX01DCEN,data science in health care  advanced prognostication using neural networks,0,0,0,0,0,1,0,1,0,0,0,0,0,0,2,2.954237325895003
+GPXX04XJEN,advanced machine   deep learning for spam classification task,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.987190182374067
+GPXX0JZ4EN,visual data analysis in banking,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.3022781806284143
+GPXX0ZYVEN,secure analysis of credit card dataset,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.172663023114885
+GPXX0ZMZEN,data science in health care  advanced machine learning classification,0,0,0,0,0,1,0,1,0,0,0,0,0,0,2,2.8864458234384007
+GPXX0742EN,network traffic anomaly detection  intrusion detection task ,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9992109139350345
+GPXX0KV4EN,getting started with node js,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.8360989544800477
+GPXX01RYEN,getting started with mysql command line,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.8281388888371723
+CC0120EN,an introduction to ibm cloud satellite,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.8606383444105434
+QC0101EN,introduction to quantum computing,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9598034973690535
+GPXX0YMEEN,launch an ai hotdog detector as a serverless python app,0,1,0,0,0,1,1,0,0,0,0,0,0,0,3,2.345772335741146
+GPXX0Q8AEN,exploratory data analysis  eda  with pandas in banking,0,1,0,1,0,0,0,0,0,0,0,0,0,0,2,2.4659606127262514
+GPXX0XFQEN,create tables and load data in mysql using phpmyadmin,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.962999379222981
+GPXX07REN,relational model concepts,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.990447375589128
+GPXX0725EN,getting started with postgresql command line,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.8281388888371723
+GPXX0MIIEN,keys and constraints in mysql,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9903328042001296
+GPXX0435EN,data science in health care  basic statistical analysis ,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.306378271252259
+GPXX06ZLEN,create tables and load data in postgresql using pgadmin,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.962999379222981
+GPXX0QS6EN,monitoring the metrics of java microservices using eclipse microprofile metrics,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX07YGEN,configuring microservices running in kubernetes,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,2.997746452884737
+GPXX0QJFEN,enabling cross origin resource sharing  cors  in a restful java microservice,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.999342066470251
+GPXX0LLEEN,getting started with db2 on cloud,1,0,1,0,0,0,0,0,0,0,0,0,0,0,2,2.1093933455021756
+GPXX04V3EN,deploy a web server using python and ibm cloud engine,0,1,1,0,0,0,0,0,0,0,0,1,0,0,3,2.983420636747023
+GPXX05P1EN,acknowledging messages using microprofile reactive messaging,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9847275086418192
+GPXX0D14EN,build a personal movie recommender with django,0,1,0,0,0,1,0,0,0,0,0,1,0,0,3,2.951217225939207
+GPXX0G3KEN,managing and injecting dependencies into java microservices using contexts and dependency injection  cdi ,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX0HZ2EN,deploying microservices to kubernetes,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,2.9977704558163922
+GPXX04TNEN,getting started with open liberty,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.740208300511602
+GPXX0IHMEN,consuming restful java microservices asynchronously using eclipse microprofile rest client,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX0E3QEN,building fault tolerant microservices with the  fallback annotation,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9993477780242626
+GPXX0XV3EN,consuming restful java microservices with template interfaces using eclipse microprofile rest client,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX0NHZEN,normalization   keys   constraints in relational database,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.990447375589128
+GPXX0XENEN,playing tictactoe with reinforcement learning and openai gym,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9970657413633033
+GPXX0HAAEN,deploying a microservice to openshift by using a kubernetes operator,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,2.983746313051872
+CO0302EN,kubernetes operators advanced,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,2.997763216985396
+GPXX0I4FEN,creating asynchronous java microservices using microprofile reactive messaging,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9980125815756846
+GPXX06KEEN,build a smart search form with algolia,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9550803799382934
+GPXX0YBFEN,documenting restful apis using microprofile openapi,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.985000782206186
+GPXX0KHHEN,data science in agriculture  land use classification,0,0,0,0,0,1,0,1,0,0,0,0,0,0,2,2.952406816484247
+GPXX04P5EN,data science in agriculture  prognostication using by neural network,0,0,0,0,0,1,0,1,0,0,0,0,0,0,2,2.7266556961306674
+GPXX0PG8EN,data science in agriculture  basic statistical analysis and geo visualisation,0,0,0,1,0,0,0,1,0,0,0,0,0,0,2,2.371035629837387
+GPXX0M7ZEN,consuming a restful java web service using json b and json p,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.997380071258113
+CC0121EN,an introduction to ibm cloud for financial services,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.933474704491665
+GPXX07UGEN,testing reactive java microservices using microshed testing framework,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9980896032365414
+GPXX0QU9EN,checking the health of java microservices by using kubernetes readiness and liveness probes,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9968545758688907
+GPXX0QTEEN,checking the health of java microservices by using eclipse microprofile health check,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX0WTIEN,train a hotdog image recognition model with python,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.9987730375385455
+GPXX08WYEN,externalizing configuration for java microservices using eclipse microprofile config,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9851470039671932
+GPXX0UMSEN,integrating restful services with a reactive system,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.996786957761475
+GPXX0M6UEN,using the cql shell to execute keyspace operations in cassandra,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.986769714833718
+GPXX097UEN,performing table and crud operations with cassandra,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9894879723390306
+SN0111EN,how to create and publish guided projects and hands on labs,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2.8662886543047184
+GPXX0JGFEN,building a simple restful java microservice using jax rs and json b,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9849653002299403
+CO0193EN,hybrid cloud conference   backend services for containers,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,2.960169792284222
+GPXX0HC7EN,transform photos to sketches and paintings with opencv,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.999335810583915
+GPXX04MXEN,quick introduction to a b testing,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.957329770873403
+GPXX0RL8EN,consuming a restful java web service with angularjs,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9958121005655545
+GPXX05LMEN,implement consumer driven contract testing for java microservices using the pact framework,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.998538095577943
+GPXX0UN5EN,classification of yelp reviews using sentiment analysis,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.1630311157459525
+GPXX0TY1EN,performing database operations in the cloudant dashboard,1,0,1,1,0,0,0,0,0,0,0,0,0,0,3,2.9848072159634382
+GPXX0T3CEN,working with databases in ibm cloudant,1,0,1,0,0,0,0,0,0,0,0,0,0,0,2,2.890662071145071
+GPXX05RDEN,medical appointment data analysis,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.3022781806284143
+GPXX0BSAEN,implementing a graphql microservice using microprofile api to query and update data from multiple services,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.944208881934893
+GPXX0G81EN,consuming a restful java web service with reactjs,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9958121005655545
+GPXX0FFCEN,building and testing a java web application with maven and open liberty,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.922857062959536
+GPXX0MP0EN,building a hypermedia driven restful java microservice using hypermedia as the engine of application state  hateoas ,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.998506591855112
+GPXX01AVEN,containerizing and running java microservices in docker containers,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,2.9994019114707338
+GPXX0G31EN,accessing and persisting data in microservices using java persistence api  jpa ,1,0,0,0,0,0,0,0,0,0,0,1,0,0,2,2.986055569763749
+GPXX0KY1EN,data science in health care  basic prognostication and geo visualization,0,0,0,1,0,0,0,1,0,0,0,0,0,0,2,2.952679394628312
+GPXX0JLHEN,enabling distributed tracing in java microservices using eclipse microprofile opentracing and the jaeger tracing system ,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9990698122009536
+GPXX0QQ3EN,deploy an ai powered discord bot with a voice,0,0,1,0,0,0,0,0,0,1,0,0,0,0,2,2.298212138407296
+GPXX0RQLEN,views in postgresql,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9903328042001296
+GPXX0WRDEN,streaming updates from a microprofile reactive messaging microservice using server sent events  sse ,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,2.9847275086418192
+GPXX0ADEN,consuming a restful java web service with angular,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9958121005655545
+excourse01,relational database systems,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.990447375589128
+excourse02,business intelligence and data warehousing,1,0,0,1,0,0,0,0,0,0,0,0,0,0,2,2.9790351351366513
+excourse03,nosql systems,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9893870085218976
+excourse04,sql for data science,1,0,0,0,0,0,0,1,0,0,0,0,0,0,2,2.9558585512698943
+excourse05,"
+distributed computing with spark sql",1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9865386912523566
+excourse06,sql for data science capstone project,1,0,0,0,0,0,0,1,0,0,0,0,0,0,2,2.7477981569807004
+excourse07,database management essentials,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9388712941627064
+excourse08,using databases with python,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.987424998016546
+excourse09,process data from dirty to clean,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.9431539098421826
+excourse10,database architecture  scale  and nosql with elasticsearch,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9892092027439157
+excourse11,the nature of data and relational database design,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.967925130460027
+excourse12,python scripting  files  inheritance  and databases,1,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2.989702730004273
+excourse13,relational database support for data warehouses,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9746238883790315
+excourse14,introduction to structured query language  sql ,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9523288451191414
+excourse15,crash course on python,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.8356315865682897
+excourse16,programming for everybody  getting started with python ,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.835330569106837
+excourse17,python basics,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9450422711029414
+excourse18,python programming  a concise introduction,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9589528422932676
+excourse19,introduction to python programming,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,2.9589528422932676
+excourse20,python and statistics for financial analysis,0,1,0,1,0,0,0,0,0,0,0,0,0,0,2,2.409168603148402
+excourse21,applied machine learning in python,0,1,0,0,0,1,0,1,0,0,0,0,0,0,3,2.9051504819581284
+excourse22,introduction to data science in python,0,1,0,0,0,1,0,1,0,0,0,0,0,0,3,2.8546169518436475
+excourse23,data analysis using python,0,1,0,1,0,0,0,0,0,0,0,0,0,0,2,2.5428661154100145
+excourse24,introduction to cloud computing,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9605515068560915
+excourse25,cloud computing basics  cloud 101 ,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9804872590755505
+excourse26,cloud computing foundations,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9861715193944622
+excourse27,cloud computing concepts  part 1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9861715193944622
+excourse28,fundamentals of cloud computing,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9958890727211336
+excourse29,cloud computing concepts  part 2,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9861715193944622
+excourse30,cloud computing applications  part 1  cloud systems and infrastructure,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,2.9858273496516183
+excourse31,cloud computing applications  part 2  big data and applications in the cloud,1,0,1,0,0,0,0,0,1,0,0,0,0,0,3,2.966440717849704
+excourse32,introduction to data analytics,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.9337534508622887
+excourse33,excel basics for data analysis,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.1962978000286224
+excourse34,introduction to data analysis,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.32911158630788
+excourse35,introduction to predictive modeling,0,0,0,1,0,1,0,0,0,0,0,0,0,0,2,2.9938824797012455
+excourse36,data analysis using python,0,1,0,1,0,0,0,0,0,0,0,0,0,0,2,2.5428661154100145
+excourse37,data analysis with r programming,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,2.299002829210458
+excourse38,data analysis with python,0,1,0,1,0,0,0,0,0,0,0,0,0,0,2,2.7030845751009194
+excourse39,excel fundamentals for data analysis,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.3355202652304428
+excourse40,exploratory data analysis for machine learning,0,0,0,1,0,1,0,0,0,0,0,0,0,0,2,2.2045709274367096
+excourse41,introduction to data analysis using excel,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,2.169937953593575
+excourse42,big data analysis  hive  spark sql  dataframes and graphframes,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.229671786943511
+excourse43,cloud virtualization  containers and apis,0,0,1,0,1,0,0,0,0,0,0,1,0,0,3,2.9992961005833005
+excourse44,alibaba cloud native solutions and container service,0,0,1,0,1,0,0,0,0,0,0,1,0,0,3,2.9661067875237292
+excourse45,docker  basics,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,2.9462050548226255
+excourse46,machine learning,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9759179872027075
+excourse47,machine learning for all,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9759179872027075
+excourse48,introduction to machine learning  language processing,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2.8613469943511762
+excourse49,applied machine learning in python,0,1,0,0,0,1,0,0,0,0,0,0,0,0,2,2.989173526327339
+excourse50,build  train  and deploy ml pipelines using bert,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.974553343890587
+excourse51,introduction to machine learning in production,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.952928851821014
+excourse52,machine learning data lifecycle in production,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9555238982537406
+excourse53,deploying machine learning models in production,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9759179872027075
+excourse54,exploratory data analysis for machine learning,0,0,0,1,0,1,0,0,0,0,0,0,0,0,2,2.2045709274367096
+excourse55,advanced computer vision with tensorflow,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.999299899994378
+excourse56,deep learning applications for computer vision,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.9946129729600988
+excourse57,deep learning in computer vision,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.9855216663147814
+excourse58,computer vision basics,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.9459292386991436
+excourse59,fundamentals of digital image and video processing,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.995550538580418
+excourse60,introduction to tensorflow for artificial intelligence  machine learning  and deep learning,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.985538793398639
+excourse61,convolutional neural networks in tensorflow,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2.999299899994378
+excourse62,introduction to data science in python,0,1,0,0,0,0,0,1,0,0,0,0,0,0,2,2.845095575590742
+excourse63,a crash course in data science,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,2.698457017799561
+excourse64,data science in real life,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,2.799309782454332
+excourse65,data science fundamentals for data analysts,0,0,0,1,0,0,0,1,0,0,0,0,0,0,2,2.899679345952208
+excourse66,executive data science capstone,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,2.9489151547048715
+excourse67,introduction to big data,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2.9380576674413446
+excourse68,big data modeling and management systems,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2.952720182870468
+excourse69,machine learning with big data,0,0,0,0,0,1,0,0,1,0,0,0,0,0,2,2.951335711446466
+excourse70,big data   capstone project,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9674245549729905
+excourse71,big data essentials  hdfs  mapreduce and spark rdd,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,2.9676583340286795
+excourse72,foundations for big data analysis with sql,1,0,0,1,0,0,0,0,1,0,0,0,0,0,3,2.218858971868165
+excourse73,analyzing big data with sql,1,0,0,1,0,0,0,0,1,0,0,0,0,0,3,2.9641363536235454
+excourse74,fundamentals of big data,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2.9671585158311213
+excourse75,hadoop platform and application framework,0,0,0,0,0,0,0,0,1,0,0,1,0,0,2,2.999139764972087
+excourse76,working with big data,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2.971765054844681
+excourse77,natural language processing with attention models,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9993136993871823
+excourse78,natural language processing with sequence models,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9993136993871823
+excourse79,natural language processing with probabilistic models,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,2.9993136993871823
+excourse80,r programming,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,2.9958117489177924
+excourse81,data analysis with r programming,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,2.2921878184002753
+excourse82,getting started with data visualization in r,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,2.7942592897836604
+excourse83,introduction to probability and data with r,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,2.9489282426634857
+excourse84,using r for regression and machine learning in investment ,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,2.9673719268006487
+excourse85,data visualization in r with ggplot2,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,2.9835123033994453
+excourse86,the r programming environment,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,2.9958117489177924
+excourse87,html  css  and javascript for web developers,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,2.9960396459355043
+excourse88,javascript basics,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.943890222748106
+excourse89,javascript  jquery  and json,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9973585108917318
+excourse90,programming foundations with javascript  html and css,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9973585108917318
+excourse91,front end web development with react,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,2.993076644468493
+excourse92,introduction to web development,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.956499834013122
+excourse93,interactivity with javascript and jquery,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,2.9973585108917318

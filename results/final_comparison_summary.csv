@@ -1,0 +1,5 @@
+Family,Algorithm,RMSE_Before,RMSE_After,MAE_Before,MAE_After,HitRate_Before,HitRate_After,NDCG_Before,NDCG_After,Coverage_Before,Coverage_After
+Content-Based,TF-IDF,0.0196,0.0547,0.001,0.0052,0.5033,0.47,0.198,0.1817,0.4104,1.0
+Content-Based,BoW,0.0199,0.059,0.001,0.0059,0.45,0.3967,0.1851,0.1691,0.4104,1.0
+Collaborative Filtering,User-KNN,0.0693,0.0287,0.0213,0.0135,0.6081,0.7124,0.2871,0.3397,0.7698,0.342
+Collaborative Filtering,Item-KNN,0.0624,0.0161,0.0039,0.0014,0.3311,0.3203,0.1189,0.1279,0.9048,0.3844

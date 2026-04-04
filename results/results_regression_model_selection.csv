@@ -1,0 +1,5 @@
+Model,CV_MAE,CV_RMSE
+RandomForest,0.1846,0.3021
+Ridge,0.2311,0.3115
+GradientBoosting,0.1797,0.3133
+LinearRegression,0.3244,0.4239
