@@ -1,0 +1,262 @@
+{
+  "request": {
+    "user_id": -181,
+    "item_id": "ML0201EN",
+    "alpha": 0.5,
+    "include_shap": true,
+    "include_lime": true
+  },
+  "mode": "single",
+  "explanations": [
+    {
+      "user": -181,
+      "item": "ML0201EN",
+      "scores": {
+        "hybrid_score": 0.0556,
+        "cf_score": 0.0,
+        "content_score": 0.1112,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.0556
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": 7909.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 139818.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 188947.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 275116.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 297331.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1112,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.1112
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.111."
+      },
+      "shap_explanation": {
+        "shap_values": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 0.72,
+          "FrontendDev": 0.94,
+          "Blockchain": 0.0
+        },
+        "base_value": 0.34,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "shap": 0.94
+          },
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "shap": 0.72
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "shap": 0.0
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "shap": 0.0
+          }
+        ]
+      },
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.429262,
+          "FrontendDev": 0.237676,
+          "ComputerVision": -0.000804,
+          "BigData": -0.000676,
+          "Database": 0.000473,
+          "Chatbot": -0.000372,
+          "Containers": -0.000352,
+          "DataAnalysis": -0.000337,
+          "Python": -0.000167,
+          "MachineLearning": -0.000124
+        },
+        "intercept": 0.318276,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.429262
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237676
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": -0.000804
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000676
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.000473
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": -0.000372
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000352
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": -0.000337
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.000167
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000124
+          }
+        ]
+      }
+    }
+  ],
+  "summary": "============================================================\nRECOMMENDATION EXPLANATION\n  User  : -181\n  Item  : ML0201EN\n============================================================\n\n\u2500\u2500 SCORE BREAKDOWN \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  Hybrid Score    : 0.0556\n  CF Score        : 0.0000  \u00d7 \u03b1=0.5  \u2192 contribution 0.0000\n  Content Score   : 0.1112  \u00d7 (1-\u03b1)=0.5  \u2192 contribution 0.0556\n\n\u2500\u2500 COLLABORATIVE FILTERING EXPLANATION \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  Recommended because 5 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0.\n  Top similar users who rated this course:\n    \u2022 user 7909.0  rating=3.0  similarity=0.0\n    \u2022 user 139818.0  rating=3.0  similarity=0.0\n    \u2022 user 188947.0  rating=3.0  similarity=0.0\n\n\u2500\u2500 CONTENT-BASED EXPLANATION \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.111.\n  Matching genres (target \u2229 user history):\n    \u2022 BackendDev         \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 1.0000\n    \u2022 FrontendDev        \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 1.0000\n\n\u2500\u2500 SHAP FEATURE IMPORTANCE (content) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  Base value : 0.3400\n  Prediction : 2.0000\n    + FrontendDev        SHAP=+0.9400\n    + BackendDev         SHAP=+0.7200\n    + Database           SHAP=+0.0000\n    + Python             SHAP=+0.0000\n    + CloudComputing     SHAP=+0.0000\n\n\u2500\u2500 LIME FEATURE WEIGHTS (content) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n  Prediction : 2.0000\n    + BackendDev         weight=+0.4293\n    + FrontendDev        weight=+0.2377\n    - ComputerVision     weight=-0.0008\n    - BigData            weight=-0.0007\n    + Database           weight=+0.0005\n\n============================================================"
+}

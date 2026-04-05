@@ -1,0 +1,1452 @@
+{
+  "request": {
+    "user_id": -181,
+    "item_id": null,
+    "alpha": 0.5,
+    "top_n": 10,
+    "include_shap": false,
+    "include_lime": true
+  },
+  "mode": "batch",
+  "explanations": [
+    {
+      "user": -181,
+      "item": "excourse89",
+      "scores": {
+        "hybrid_score": 0.3519,
+        "cf_score": 0.0,
+        "content_score": 0.7037,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.3519
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -177.0,
+            "rating": 2.997358510891732,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.7037,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.7037
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.704."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.429262,
+          "FrontendDev": 0.237676,
+          "ComputerVision": -0.000804,
+          "BigData": -0.000676,
+          "Database": 0.000473,
+          "Chatbot": -0.000372,
+          "Containers": -0.000352,
+          "DataAnalysis": -0.000337,
+          "Python": -0.000167,
+          "MachineLearning": -0.000124
+        },
+        "intercept": 0.318276,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.429262
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237676
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": -0.000804
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000676
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.000473
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": -0.000372
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000352
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": -0.000337
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.000167
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000124
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "excourse88",
+      "scores": {
+        "hybrid_score": 0.2561,
+        "cf_score": 0.0,
+        "content_score": 0.5121,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.2561
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -176.0,
+            "rating": 2.943890222748106,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 2.9/3.0). Most similar user gave it 2.9."
+      },
+      "content_explanation": {
+        "content_score": 0.5121,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.5121
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.512."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428429,
+          "FrontendDev": 0.237759,
+          "ComputerVision": -0.000793,
+          "Database": -0.000435,
+          "Containers": -0.000328,
+          "MachineLearning": -0.000201,
+          "DataAnalysis": -0.000176,
+          "R": -0.000173,
+          "BigData": -0.000144,
+          "DataScience": -0.000132
+        },
+        "intercept": 0.3187,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.428429
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237759
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": -0.000793
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": -0.000435
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000328
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000201
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": -0.000176
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": -0.000173
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000144
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000132
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "excourse90",
+      "scores": {
+        "hybrid_score": 0.162,
+        "cf_score": 0.0,
+        "content_score": 0.324,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.162
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -178.0,
+            "rating": 2.997358510891732,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.324,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.324
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.324."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428637,
+          "FrontendDev": 0.238169,
+          "MachineLearning": -0.000686,
+          "BigData": -0.000624,
+          "DataScience": -0.000391,
+          "Python": 0.000317,
+          "Containers": -0.000174,
+          "R": -0.000143,
+          "Database": 0.000135,
+          "CloudComputing": -0.000132
+        },
+        "intercept": 0.318645,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.428637
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.238169
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000686
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000624
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000391
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.000317
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000174
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": -0.000143
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.000135
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": -0.000132
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "excourse87",
+      "scores": {
+        "hybrid_score": 0.1411,
+        "cf_score": 0.0,
+        "content_score": 0.2822,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.1411
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -175.0,
+            "rating": 2.9960396459355043,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.2822,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.2822
+          }
+        ],
+        "narrative": "Matched because of shared topics: FrontendDev. Content similarity score: 0.282."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428988,
+          "FrontendDev": 0.237939,
+          "ComputerVision": 0.000843,
+          "BigData": -0.000744,
+          "Python": 0.000418,
+          "Chatbot": 0.000383,
+          "MachineLearning": 0.000251,
+          "R": -0.000182,
+          "DataScience": 0.00018,
+          "Database": 9.7e-05
+        },
+        "intercept": 0.316596,
+        "prediction": 1.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.428988
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237939
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": 0.000843
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000744
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.000418
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": 0.000383
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.000251
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": -0.000182
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.00018
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 9.7e-05
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "GPXX03HFEN",
+      "scores": {
+        "hybrid_score": 0.137,
+        "cf_score": 0.0,
+        "content_score": 0.2739,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.137
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -9.0,
+            "rating": 2.9918252477617227,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.2739,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.2739
+          }
+        ],
+        "narrative": "Matched because of shared topics: FrontendDev. Content similarity score: 0.274."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.429263,
+          "FrontendDev": 0.237872,
+          "Containers": 0.000446,
+          "CloudComputing": -0.000377,
+          "Database": -0.000351,
+          "BigData": 0.000333,
+          "Blockchain": 0.00033,
+          "Chatbot": -0.000304,
+          "MachineLearning": -0.000228,
+          "DataAnalysis": 0.000117
+        },
+        "intercept": 0.3167,
+        "prediction": 1.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.429263
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237872
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": 0.000446
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": -0.000377
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": -0.000351
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.000333
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "weight": 0.00033
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": -0.000304
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000228
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.000117
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "excourse92",
+      "scores": {
+        "hybrid_score": 0.1058,
+        "cf_score": 0.0,
+        "content_score": 0.2116,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.1058
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -180.0,
+            "rating": 2.956499834013122,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.2116,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.2116
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.212."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428904,
+          "FrontendDev": 0.238071,
+          "Database": -0.000584,
+          "Blockchain": 0.000547,
+          "Python": -0.000531,
+          "ComputerVision": 0.000477,
+          "Containers": -0.000434,
+          "DataAnalysis": -0.000352,
+          "BigData": -0.000157,
+          "DataScience": -0.000122
+        },
+        "intercept": 0.31903,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.428904
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.238071
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": -0.000584
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "weight": 0.000547
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.000531
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": 0.000477
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000434
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": -0.000352
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000157
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000122
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "OS0101EN",
+      "scores": {
+        "hybrid_score": 0.1003,
+        "cf_score": 0.0,
+        "content_score": 0.2006,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.1003
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": 20.0,
+            "rating": 2.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 27.0,
+            "rating": 2.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 425429.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 575871.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 679223.0,
+            "rating": 2.0,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with similar taste rated this course (avg rating: 2.4/3.0). Most similar user gave it 2.0."
+      },
+      "content_explanation": {
+        "content_score": 0.2006,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.2006
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.201."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428785,
+          "FrontendDev": 0.238254,
+          "Containers": -0.000532,
+          "Python": -0.00044,
+          "ComputerVision": 0.000358,
+          "DataAnalysis": 0.000332,
+          "DataScience": -0.000293,
+          "BigData": 0.000293,
+          "Chatbot": 0.000276,
+          "MachineLearning": -5.7e-05
+        },
+        "intercept": 0.318743,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.428785
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.238254
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000532
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.00044
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": 0.000358
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.000332
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000293
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.000293
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": 0.000276
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -5.7e-05
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "GPXX0UMSEN",
+      "scores": {
+        "hybrid_score": 0.0871,
+        "cf_score": 0.0,
+        "content_score": 0.1742,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.0871
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": -63.0,
+            "rating": 2.996786957761475,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 1 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1742,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.1742
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.174."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.429115,
+          "FrontendDev": 0.238272,
+          "R": -0.000911,
+          "Containers": -0.000602,
+          "Python": -0.000463,
+          "DataScience": -0.000385,
+          "CloudComputing": 0.00026,
+          "MachineLearning": 0.000213,
+          "BigData": 0.000199,
+          "DataAnalysis": 0.000145
+        },
+        "intercept": 0.318761,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.429115
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.238272
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": -0.000911
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000602
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.000463
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000385
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.00026
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.000213
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.000199
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.000145
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "LB0105ENv1",
+      "scores": {
+        "hybrid_score": 0.0835,
+        "cf_score": 0.0,
+        "content_score": 0.1671,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.0835
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": 5.0,
+            "rating": 2.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 7764.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 7909.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 23877.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 66648.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with similar taste rated this course (avg rating: 2.8/3.0). Most similar user gave it 2.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1671,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.1671
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.167."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.428536,
+          "FrontendDev": 0.237996,
+          "Database": -0.000677,
+          "DataScience": 0.000578,
+          "MachineLearning": -0.000488,
+          "ComputerVision": -0.00046,
+          "Python": -0.000418,
+          "Chatbot": 0.000414,
+          "BigData": -0.000318,
+          "CloudComputing": -0.000149
+        },
+        "intercept": 0.318593,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.428536
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237996
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": -0.000677
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.000578
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000488
+          },
+          {
+            "feature": "ComputerVision",
+            "value": 0.0,
+            "weight": -0.00046
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.000418
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": 0.000414
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000318
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": -0.000149
+          }
+        ]
+      }
+    },
+    {
+      "user": -181,
+      "item": "CC0150EN",
+      "scores": {
+        "hybrid_score": 0.0787,
+        "cf_score": 0.0,
+        "content_score": 0.1573,
+        "alpha": 0.5,
+        "cf_contribution": 0.0,
+        "content_contribution": 0.0787
+      },
+      "cf_explanation": {
+        "cf_score": 0.0,
+        "similar_users_who_rated": [
+          {
+            "user": 1938.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 66648.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 85085.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 126632.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          },
+          {
+            "user": 155490.0,
+            "rating": 3.0,
+            "similarity": 0.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1573,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 1,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 1,
+          "FrontendDev": 1,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.0,
+          "Python": 0.0,
+          "CloudComputing": 0.0,
+          "DataAnalysis": 0.0,
+          "Containers": 0.0,
+          "MachineLearning": 0.0,
+          "ComputerVision": 0.0,
+          "DataScience": 0.0,
+          "BigData": 0.0,
+          "Chatbot": 0.0,
+          "R": 0.0,
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0,
+          "Blockchain": 0.0
+        },
+        "matching_genre_scores": {
+          "BackendDev": 1.0,
+          "FrontendDev": 1.0
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "excourse93",
+            "similarity": 0.1573
+          }
+        ],
+        "narrative": "Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.157."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "BackendDev": 0.426386,
+          "FrontendDev": 0.237655,
+          "CloudComputing": 0.001442,
+          "Database": -0.001059,
+          "Python": -0.001057,
+          "DataScience": -0.000868,
+          "Containers": -0.000807,
+          "DataAnalysis": 0.000743,
+          "BigData": -0.000722,
+          "MachineLearning": -0.000549
+        },
+        "intercept": 0.319505,
+        "prediction": 2.0,
+        "plot_data": [
+          {
+            "feature": "BackendDev",
+            "value": 1.0,
+            "weight": 0.426386
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 1.0,
+            "weight": 0.237655
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 1.0,
+            "weight": 0.001442
+          },
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": -0.001059
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": -0.001057
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": -0.000868
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": -0.000807
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.000743
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": -0.000722
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": -0.000549
+          }
+        ]
+      }
+    }
+  ],
+  "summary": "Top-10 recommendations for user -181 (\u03b1=0.5, CF weight=50%, content weight=50%)."
+}

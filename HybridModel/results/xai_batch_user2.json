@@ -1,0 +1,1673 @@
+{
+  "request": {
+    "user_id": 2,
+    "item_id": null,
+    "alpha": 0.5,
+    "top_n": 10,
+    "include_shap": false,
+    "include_lime": true
+  },
+  "mode": "batch",
+  "explanations": [
+    {
+      "user": 2,
+      "item": "BD0111EN",
+      "scores": {
+        "hybrid_score": 0.9554,
+        "cf_score": 1.0,
+        "content_score": 0.9108,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.4554
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 1383.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 12273.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 19661.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 20833.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 20948.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1635,
+        "target_item_genres": {
+          "Database": 1,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 1,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "Database": 0.3469,
+          "BigData": 0.2857
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "BD0131EN",
+            "similarity": 0.5978
+          },
+          {
+            "item": "BD0101EN",
+            "similarity": 0.5862
+          },
+          {
+            "item": "BD0145EN",
+            "similarity": 0.5648
+          }
+        ],
+        "narrative": "Matched because of shared topics: Database, BigData. Content similarity score: 0.164."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.146985,
+          "DataAnalysis": 0.118897,
+          "BigData": 0.108863,
+          "MachineLearning": 0.091331,
+          "BackendDev": 0.075302,
+          "DataScience": 0.071484,
+          "R": 0.032715,
+          "Python": 0.018171,
+          "CloudComputing": 0.012366,
+          "FrontendDev": 0.007134
+        },
+        "intercept": 0.367056,
+        "prediction": 0.711189,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 1.0,
+            "weight": 0.146985
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.118897
+          },
+          {
+            "feature": "BigData",
+            "value": 1.0,
+            "weight": 0.108863
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.091331
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.075302
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.071484
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.032715
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.018171
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.012366
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 0.0,
+            "weight": 0.007134
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "TA0105EN",
+      "scores": {
+        "hybrid_score": 0.8635,
+        "cf_score": 1.0,
+        "content_score": 0.727,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.3635
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 279515.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 346017.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 476798.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 512732.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 519242.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1305,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 1,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "MachineLearning": 0.2041
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "TA0105",
+            "similarity": 1.0
+          },
+          {
+            "item": "BD0151EN",
+            "similarity": 0.9342
+          },
+          {
+            "item": "TA0106EN",
+            "similarity": 0.6214
+          }
+        ],
+        "narrative": "Matched because of shared topics: MachineLearning. Content similarity score: 0.131."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.167493,
+          "DataAnalysis": 0.112649,
+          "BigData": 0.108151,
+          "MachineLearning": 0.076325,
+          "DataScience": 0.074338,
+          "BackendDev": 0.073525,
+          "R": 0.035848,
+          "Python": 0.023172,
+          "CloudComputing": 0.011148,
+          "FrontendDev": 0.004175
+        },
+        "intercept": 0.376351,
+        "prediction": 0.324443,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.167493
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.112649
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.108151
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 1.0,
+            "weight": 0.076325
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.074338
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.073525
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.035848
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.023172
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.011148
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 0.0,
+            "weight": 0.004175
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "ML0115EN",
+      "scores": {
+        "hybrid_score": 0.8603,
+        "cf_score": 1.0,
+        "content_score": 0.7206,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.3603
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 1383.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 7233.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 7789.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 8059.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 12273.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1294,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 1,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "MachineLearning": 0.2041
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "ML0120EN",
+            "similarity": 0.6612
+          },
+          {
+            "item": "ML0120ENv2",
+            "similarity": 0.6612
+          },
+          {
+            "item": "RP0151EN",
+            "similarity": 0.5399
+          }
+        ],
+        "narrative": "Matched because of shared topics: MachineLearning. Content similarity score: 0.129."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.154757,
+          "DataAnalysis": 0.116173,
+          "BigData": 0.113597,
+          "MachineLearning": 0.07873,
+          "BackendDev": 0.072496,
+          "DataScience": 0.072178,
+          "R": 0.031449,
+          "Python": 0.020833,
+          "FrontendDev": 0.008502,
+          "CloudComputing": 0.005505
+        },
+        "intercept": 0.375998,
+        "prediction": 0.324443,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.154757
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.116173
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.113597
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 1.0,
+            "weight": 0.07873
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.072496
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.072178
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.031449
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.020833
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 0.0,
+            "weight": 0.008502
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.005505
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "BD0212EN",
+      "scores": {
+        "hybrid_score": 0.8223,
+        "cf_score": 1.0,
+        "content_score": 0.6447,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.3223
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 32936.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 41727.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 52917.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 53270.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 54439.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1157,
+        "target_item_genres": {
+          "Database": 1,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 1,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 1,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "Database": 0.3469,
+          "BigData": 0.2857,
+          "DataAnalysis": 0.2653
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "BD0211EN",
+            "similarity": 0.8069
+          },
+          {
+            "item": "RP0105EN",
+            "similarity": 0.3967
+          },
+          {
+            "item": "SC0103EN",
+            "similarity": 0.3902
+          }
+        ],
+        "narrative": "Matched because of shared topics: Database, BigData, DataAnalysis. Content similarity score: 0.116."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.142165,
+          "BigData": 0.103154,
+          "DataAnalysis": 0.096616,
+          "MachineLearning": 0.089156,
+          "BackendDev": 0.07434,
+          "DataScience": 0.070147,
+          "R": 0.029885,
+          "Python": 0.025411,
+          "Blockchain": 0.015964,
+          "CloudComputing": 0.003794
+        },
+        "intercept": 0.38412,
+        "prediction": 0.824196,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 1.0,
+            "weight": 0.142165
+          },
+          {
+            "feature": "BigData",
+            "value": 1.0,
+            "weight": 0.103154
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 1.0,
+            "weight": 0.096616
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.089156
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.07434
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.070147
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.029885
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.025411
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "weight": 0.015964
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.003794
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "DB0151EN",
+      "scores": {
+        "hybrid_score": 0.7894,
+        "cf_score": 1.0,
+        "content_score": 0.5789,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.2894
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 15662.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 66779.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 77747.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 104394.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 116174.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.1039,
+        "target_item_genres": {
+          "Database": 1,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 1,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "Database": 0.3469,
+          "BigData": 0.2857
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "BD0101EN",
+            "similarity": 0.439
+          },
+          {
+            "item": "RP0151EN",
+            "similarity": 0.3865
+          },
+          {
+            "item": "BD0121EN",
+            "similarity": 0.3323
+          }
+        ],
+        "narrative": "Matched because of shared topics: Database, BigData. Content similarity score: 0.104."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.153683,
+          "DataAnalysis": 0.115481,
+          "BigData": 0.097474,
+          "MachineLearning": 0.093589,
+          "BackendDev": 0.073091,
+          "DataScience": 0.066373,
+          "R": 0.031783,
+          "Python": 0.019266,
+          "Chatbot": 0.011218,
+          "CloudComputing": 0.00995
+        },
+        "intercept": 0.368167,
+        "prediction": 0.711189,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 1.0,
+            "weight": 0.153683
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.115481
+          },
+          {
+            "feature": "BigData",
+            "value": 1.0,
+            "weight": 0.097474
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.093589
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.073091
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.066373
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.031783
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.019266
+          },
+          {
+            "feature": "Chatbot",
+            "value": 0.0,
+            "weight": 0.011218
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.00995
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "RP0101EN",
+      "scores": {
+        "hybrid_score": 0.765,
+        "cf_score": 1.0,
+        "content_score": 0.53,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.265
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 452.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 3450.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 5053.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 13944.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 16941.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.0951,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 1,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 1,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "DataScience": 0.1837,
+          "R": 0.102
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "SC0105EN",
+            "similarity": 0.6861
+          },
+          {
+            "item": "DS0103EN",
+            "similarity": 0.6668
+          },
+          {
+            "item": "PY0101EN",
+            "similarity": 0.6073
+          }
+        ],
+        "narrative": "Matched because of shared topics: DataScience, R. Content similarity score: 0.095."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.16203,
+          "DataAnalysis": 0.118065,
+          "BigData": 0.116405,
+          "MachineLearning": 0.089847,
+          "BackendDev": 0.066803,
+          "DataScience": 0.06654,
+          "Python": 0.02476,
+          "R": 0.018514,
+          "CloudComputing": 0.010865,
+          "Blockchain": 0.007166
+        },
+        "intercept": 0.382514,
+        "prediction": 0.321182,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.16203
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.118065
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.116405
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.089847
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.066803
+          },
+          {
+            "feature": "DataScience",
+            "value": 1.0,
+            "weight": 0.06654
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.02476
+          },
+          {
+            "feature": "R",
+            "value": 1.0,
+            "weight": 0.018514
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.010865
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "weight": 0.007166
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "ML0101EN",
+      "scores": {
+        "hybrid_score": 0.7559,
+        "cf_score": 1.0,
+        "content_score": 0.5118,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.2559
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 8059.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 10694.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 22492.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 30958.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 35928.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.0919,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 1,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 1,
+          "ComputerVision": 0,
+          "DataScience": 1,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "MachineLearning": 0.2041,
+          "DataScience": 0.1837,
+          "Python": 0.0816
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "PY0101EN",
+            "similarity": 0.6996
+          },
+          {
+            "item": "DA0101EN",
+            "similarity": 0.5815
+          },
+          {
+            "item": "DV0101EN",
+            "similarity": 0.5329
+          }
+        ],
+        "narrative": "Matched because of shared topics: MachineLearning, DataScience, Python. Content similarity score: 0.092."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.151305,
+          "DataAnalysis": 0.118196,
+          "BigData": 0.107093,
+          "MachineLearning": 0.078574,
+          "BackendDev": 0.069674,
+          "DataScience": 0.053982,
+          "R": 0.036877,
+          "Python": 0.014145,
+          "Blockchain": 0.013765,
+          "CloudComputing": 0.00339
+        },
+        "intercept": 0.376101,
+        "prediction": 0.430829,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.151305
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.118196
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.107093
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 1.0,
+            "weight": 0.078574
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.069674
+          },
+          {
+            "feature": "DataScience",
+            "value": 1.0,
+            "weight": 0.053982
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.036877
+          },
+          {
+            "feature": "Python",
+            "value": 1.0,
+            "weight": 0.014145
+          },
+          {
+            "feature": "Blockchain",
+            "value": 0.0,
+            "weight": 0.013765
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.00339
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "DS0101EN",
+      "scores": {
+        "hybrid_score": 0.7395,
+        "cf_score": 1.0,
+        "content_score": 0.4791,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.2395
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 2191.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 5053.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 7233.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 7438.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 12273.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.086,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 1,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "DataScience": 0.1837
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "SC0105EN",
+            "similarity": 0.5688
+          },
+          {
+            "item": "DS0103EN",
+            "similarity": 0.5529
+          },
+          {
+            "item": "PY0101EN",
+            "similarity": 0.5035
+          }
+        ],
+        "narrative": "Matched because of shared topics: DataScience. Content similarity score: 0.086."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.169483,
+          "DataAnalysis": 0.125643,
+          "BigData": 0.109965,
+          "MachineLearning": 0.098648,
+          "BackendDev": 0.071834,
+          "DataScience": 0.06993,
+          "Python": 0.030534,
+          "R": 0.029582,
+          "CloudComputing": 0.00706,
+          "Containers": 0.006715
+        },
+        "intercept": 0.372975,
+        "prediction": 0.291999,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.169483
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.125643
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.109965
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.098648
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.071834
+          },
+          {
+            "feature": "DataScience",
+            "value": 1.0,
+            "weight": 0.06993
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.030534
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.029582
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.00706
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": 0.006715
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "ML0101ENv3",
+      "scores": {
+        "hybrid_score": 0.709,
+        "cf_score": 1.0,
+        "content_score": 0.418,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.209
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 7575.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 7789.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 13944.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 15055.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 20833.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.075,
+        "target_item_genres": {
+          "Database": 0,
+          "Python": 1,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 1,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 0,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "MachineLearning": 0.2041,
+          "Python": 0.0816
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "DA0101EN",
+            "similarity": 0.6176
+          },
+          {
+            "item": "PY0101EN",
+            "similarity": 0.6108
+          },
+          {
+            "item": "DV0101EN",
+            "similarity": 0.566
+          }
+        ],
+        "narrative": "Matched because of shared topics: MachineLearning, Python. Content similarity score: 0.075."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.155635,
+          "DataAnalysis": 0.115012,
+          "BigData": 0.10645,
+          "MachineLearning": 0.071598,
+          "BackendDev": 0.067522,
+          "DataScience": 0.065671,
+          "R": 0.027646,
+          "Python": 0.026489,
+          "Containers": 0.011599,
+          "FrontendDev": 0.011123
+        },
+        "intercept": 0.36674,
+        "prediction": 0.321182,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 0.0,
+            "weight": 0.155635
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.115012
+          },
+          {
+            "feature": "BigData",
+            "value": 0.0,
+            "weight": 0.10645
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 1.0,
+            "weight": 0.071598
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.067522
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.065671
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.027646
+          },
+          {
+            "feature": "Python",
+            "value": 1.0,
+            "weight": 0.026489
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": 0.011599
+          },
+          {
+            "feature": "FrontendDev",
+            "value": 0.0,
+            "weight": 0.011123
+          }
+        ]
+      }
+    },
+    {
+      "user": 2,
+      "item": "BD0115EN",
+      "scores": {
+        "hybrid_score": 0.6635,
+        "cf_score": 1.0,
+        "content_score": 0.3269,
+        "alpha": 0.5,
+        "cf_contribution": 0.5,
+        "content_contribution": 0.1635
+      },
+      "cf_explanation": {
+        "cf_score": 3.0,
+        "similar_users_who_rated": [
+          {
+            "user": 15055.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 15662.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 19661.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 20833.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          },
+          {
+            "user": 26339.0,
+            "rating": 3.0,
+            "similarity": 1.0
+          }
+        ],
+        "narrative": "Recommended because 5 users with strong taste overlap rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0."
+      },
+      "content_explanation": {
+        "content_score": 0.0587,
+        "target_item_genres": {
+          "Database": 1,
+          "Python": 0,
+          "CloudComputing": 0,
+          "DataAnalysis": 0,
+          "Containers": 0,
+          "MachineLearning": 0,
+          "ComputerVision": 0,
+          "DataScience": 0,
+          "BigData": 1,
+          "Chatbot": 0,
+          "R": 0,
+          "BackendDev": 0,
+          "FrontendDev": 0,
+          "Blockchain": 0
+        },
+        "user_genre_profile": {
+          "Database": 0.3469,
+          "Python": 0.0816,
+          "CloudComputing": 0.0408,
+          "DataAnalysis": 0.2653,
+          "Containers": 0.0204,
+          "MachineLearning": 0.2041,
+          "ComputerVision": 0.0,
+          "DataScience": 0.1837,
+          "BigData": 0.2857,
+          "Chatbot": 0.0,
+          "R": 0.102,
+          "BackendDev": 0.1633,
+          "FrontendDev": 0.0204,
+          "Blockchain": 0.0408
+        },
+        "matching_genre_scores": {
+          "Database": 0.3469,
+          "BigData": 0.2857
+        },
+        "top_similar_courses_in_history": [
+          {
+            "item": "BD0101EN",
+            "similarity": 0.2506
+          },
+          {
+            "item": "BD0211EN",
+            "similarity": 0.2343
+          },
+          {
+            "item": "BD0131EN",
+            "similarity": 0.2002
+          }
+        ],
+        "narrative": "Matched because of shared topics: Database, BigData. Content similarity score: 0.059."
+      },
+      "shap_explanation": null,
+      "lime_explanation": {
+        "lime_weights": {
+          "Database": 0.147989,
+          "DataAnalysis": 0.10843,
+          "MachineLearning": 0.09645,
+          "BigData": 0.092949,
+          "DataScience": 0.074229,
+          "BackendDev": 0.066697,
+          "R": 0.025536,
+          "Python": 0.019412,
+          "CloudComputing": 0.009207,
+          "Containers": 0.008371
+        },
+        "intercept": 0.377357,
+        "prediction": 0.711189,
+        "plot_data": [
+          {
+            "feature": "Database",
+            "value": 1.0,
+            "weight": 0.147989
+          },
+          {
+            "feature": "DataAnalysis",
+            "value": 0.0,
+            "weight": 0.10843
+          },
+          {
+            "feature": "MachineLearning",
+            "value": 0.0,
+            "weight": 0.09645
+          },
+          {
+            "feature": "BigData",
+            "value": 1.0,
+            "weight": 0.092949
+          },
+          {
+            "feature": "DataScience",
+            "value": 0.0,
+            "weight": 0.074229
+          },
+          {
+            "feature": "BackendDev",
+            "value": 0.0,
+            "weight": 0.066697
+          },
+          {
+            "feature": "R",
+            "value": 0.0,
+            "weight": 0.025536
+          },
+          {
+            "feature": "Python",
+            "value": 0.0,
+            "weight": 0.019412
+          },
+          {
+            "feature": "CloudComputing",
+            "value": 0.0,
+            "weight": 0.009207
+          },
+          {
+            "feature": "Containers",
+            "value": 0.0,
+            "weight": 0.008371
+          }
+        ]
+      }
+    }
+  ],
+  "summary": "Top-10 recommendations for user 2 (\u03b1=0.5, CF weight=50%, content weight=50%)."
+}

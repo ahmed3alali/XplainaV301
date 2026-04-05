@@ -1,0 +1,42 @@
+============================================================
+RECOMMENDATION EXPLANATION
+  User  : -181
+  Item  : ML0201EN
+============================================================
+
+── SCORE BREAKDOWN ──────────────────────────────────────
+  Hybrid Score    : 0.0556
+  CF Score        : 0.0000  × α=0.5  → contribution 0.0000
+  Content Score   : 0.1112  × (1-α)=0.5  → contribution 0.0556
+
+── COLLABORATIVE FILTERING EXPLANATION ──────────────────
+  Recommended because 5 users with similar taste rated this course (avg rating: 3.0/3.0). Most similar user gave it 3.0.
+  Top similar users who rated this course:
+    • user 7909.0  rating=3.0  similarity=0.0
+    • user 139818.0  rating=3.0  similarity=0.0
+    • user 188947.0  rating=3.0  similarity=0.0
+
+── CONTENT-BASED EXPLANATION ────────────────────────────
+  Matched because of shared topics: BackendDev, FrontendDev. Content similarity score: 0.111.
+  Matching genres (target ∩ user history):
+    • BackendDev         ████████████████████ 1.0000
+    • FrontendDev        ████████████████████ 1.0000
+
+── SHAP FEATURE IMPORTANCE (content) ───────────────────
+  Base value : 0.3400
+  Prediction : 2.0000
+    + FrontendDev        SHAP=+0.9400
+    + BackendDev         SHAP=+0.7200
+    + Database           SHAP=+0.0000
+    + Python             SHAP=+0.0000
+    + CloudComputing     SHAP=+0.0000
+
+── LIME FEATURE WEIGHTS (content) ───────────────────────
+  Prediction : 2.0000
+    + BackendDev         weight=+0.4293
+    + FrontendDev        weight=+0.2377
+    - ComputerVision     weight=-0.0008
+    - BigData            weight=-0.0007
+    + Database           weight=+0.0005
+
+============================================================
