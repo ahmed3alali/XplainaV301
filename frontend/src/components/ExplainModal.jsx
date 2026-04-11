@@ -5,7 +5,7 @@ import { api } from '@/services/api'
 import { X, Loader2, Sparkles, AlertCircle } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
-export default function ExplainModal({ courseId, userId, onClose }) {
+export default function ExplainModal({ courseId, userId, userType, takenCourses, onClose }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -14,12 +14,11 @@ export default function ExplainModal({ courseId, userId, onClose }) {
   useEffect(() => {
     const fetchExplain = async () => {
       try {
-        if (userId !== "0") {
+        if (userType === "dataset_user") {
           const res = await api.getExplanation(userId, courseId)
           setData(res)
         } else {
-          const stored = localStorage.getItem('selectedCourses')
-          const selectedCourses = stored ? JSON.parse(stored) : []
+          const selectedCourses = takenCourses ? takenCourses.map(c => c.COURSE_ID) : []
           const res = await api.getDynamicExplanation(selectedCourses, courseId)
           setData(res)
         }
@@ -30,7 +29,7 @@ export default function ExplainModal({ courseId, userId, onClose }) {
       }
     }
     fetchExplain()
-  }, [courseId, userId])
+  }, [courseId, userId, userType, takenCourses])
 
   if (loading) {
     return (

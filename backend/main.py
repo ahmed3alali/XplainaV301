@@ -141,9 +141,14 @@ def save_my_courses(req: SelectedCoursesReq, user: dict = Depends(get_current_us
         key = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
         sb = create_client(url, key)
         
+        # Delete old selections
+        sb.table("user_courses").delete().eq("user_id", user_id).execute()
+        
         # Save each course
-        inserts = [{"user_id": user_id, "course_id": str(cid)} for cid in req.selected_courses]
-        sb.table("user_courses").insert(inserts).execute()
+        if req.selected_courses:
+            inserts = [{"user_id": user_id, "course_id": str(cid)} for cid in req.selected_courses]
+            sb.table("user_courses").insert(inserts).execute()
+            
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save courses: {str(e)}")

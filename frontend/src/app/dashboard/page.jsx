@@ -29,6 +29,11 @@ export default function Dashboard() {
           if (session.user.apiToken) {
             coursesData = await api.getMyCourses(session.user.apiToken)
             setTakenCourses(coursesData)
+            
+            if (coursesData.length === 0 && session.user.userType === "real_user") {
+              router.push('/select-courses')
+              return
+            }
           }
 
           if (session.user.userType === "dataset_user") {
@@ -158,6 +163,8 @@ export default function Dashboard() {
         <ExplainModal 
           courseId={selectedCourse} 
           userId={session?.user?.id}
+          userType={session?.user?.userType}
+          takenCourses={takenCourses}
           onClose={() => setSelectedCourse(null)} 
         />
       )}
