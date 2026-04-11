@@ -29,19 +29,18 @@ export default function Home() {
           return
         }
 
-        // 2. Real Users - check if they already have courses
+        // 2. Real Users - load their existing courses to populate the UI
         try {
           const res = await fetch("http://127.0.0.1:8000/courses/my-courses", {
              headers: { "Authorization": `Bearer ${session.user.apiToken}` }
           })
-          const data = await res.json()
+          const myCoursesData = await res.json()
 
-          if (res.ok && data && data.length > 0) {
-            router.push('/dashboard')
-            return
+          if (res.ok && myCoursesData && myCoursesData.length > 0) {
+            const existingSet = new Set(myCoursesData.map(c => c.COURSE_ID))
+            setSelected(existingSet)
           }
 
-          // If no courses exist, they are a brand new Real User. Show cold-start.
           setCheckingUser(false)
           
           api.getCourses(50)
