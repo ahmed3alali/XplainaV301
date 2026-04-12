@@ -104,15 +104,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="mx-auto max-w-5xl px-4 py-12">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-background selection:bg-brand selection:text-brand-foreground">
+      <div className="mx-auto max-w-5xl px-6 py-12">
+        <div className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Build Your Profile</h1>
-            <p className="text-slate-400">Select any courses you have previously taken to personalize your recommendations. Select none to proceed empty.</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1.5">Build Your Profile</h1>
+            <p className="text-sm text-foreground/60">Select any courses you have previously taken to personalize your recommendations.</p>
           </div>
-          <button onClick={() => signOut()} className="flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
-            <LogOut className="h-4 w-4" />
+          <button onClick={() => signOut()} className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-raised transition-colors">
+            <LogOut className="h-3.5 w-3.5" />
             Sign Out
           </button>
         </div>
@@ -124,29 +124,29 @@ export default function Home() {
               <div
                 key={course.COURSE_ID}
                 onClick={() => toggleCourse(course.COURSE_ID)}
-                className={`group relative cursor-pointer overflow-hidden rounded-xl border p-5 transition-all ${
+                className={`group relative cursor-pointer overflow-hidden rounded-lg border p-5 transition-all duration-200 ${
                   isSelected 
-                    ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.15)]' 
-                    : 'border-white/5 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                    ? 'border-brand bg-surface shadow-[inset_0_0_0_1px_var(--color-brand)]' 
+                    : 'border-border-subtle bg-surface hover:border-border hover:bg-surface-raised'
                 }`}
               >
                 <div className="mb-3 flex items-start justify-between">
-                  <BookOpen className={`h-5 w-5 ${isSelected ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-400'}`} />
-                  <div className={`flex h-5 w-5 items-center justify-center rounded-full border transition-colors ${
-                    isSelected ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-slate-600 group-hover:border-slate-500 text-transparent'
+                  <BookOpen className={`h-[18px] w-[18px] ${isSelected ? 'text-brand' : 'text-foreground/40 group-hover:text-foreground/60'}`} />
+                  <div className={`flex h-[18px] w-[18px] items-center justify-center rounded-sm border transition-colors ${
+                    isSelected ? 'border-brand bg-brand text-brand-foreground' : 'border-border-subtle group-hover:border-border text-transparent'
                   }`}>
-                    <Check className="h-3 w-3" />
+                    <Check className="h-3 w-3 font-bold" />
                   </div>
                 </div>
-                <h3 className="font-semibold text-slate-200 line-clamp-2">{course.TITLE}</h3>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <h3 className="text-[15px] font-medium text-foreground line-clamp-2 leading-snug">{course.TITLE}</h3>
+                <div className="mt-4 flex flex-wrap gap-1.5">
                   {course.genres?.slice(0, 3).map(g => (
-                    <span key={g} className="rounded-md bg-black/30 px-2 py-1 text-xs text-slate-400">
+                    <span key={g} className="rounded-md border border-border-subtle bg-background px-2 py-0.5 text-[11px] font-medium text-foreground/60">
                       {g}
                     </span>
                   )) || null}
                   {course.genres?.length > 3 && (
-                    <span className="rounded-md bg-black/30 px-2 py-1 text-xs text-slate-400">
+                    <span className="rounded-md border border-border-subtle bg-background px-2 py-0.5 text-[11px] font-medium text-foreground/60">
                       +{course.genres.length - 3}
                     </span>
                   )}
@@ -156,16 +156,16 @@ export default function Home() {
           })}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 border-t border-white/10 bg-slate-950/80 p-4 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-5xl items-center justify-between">
-            <p className="text-sm text-slate-400">
-              <strong className="text-white">{selected.size}</strong> courses selected
+        <div className="fixed bottom-0 left-0 right-0 glass-panel border-x-0 border-b-0 border-t z-50">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+            <p className="text-[13px] font-medium text-foreground/60">
+              <span className="text-foreground">{selected.size}</span> courses selected
             </p>
             <button
               onClick={handleProceed}
-              className="flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 font-semibold text-slate-950 transition-transform active:scale-95 hover:bg-slate-200"
+              className="flex items-center gap-2 rounded-md bg-brand px-5 py-2 text-sm font-medium text-brand-foreground shadow-sm transition-all hover:bg-brand/90 active:scale-95"
             >
-              Get Recommendations
+              Continue
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

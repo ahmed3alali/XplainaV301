@@ -65,19 +65,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mb-10 flex items-center justify-between border-b border-border-subtle pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">My Dashboard</h1>
-          <p className="text-slate-400">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">My Dashboard</h1>
+          <p className="text-[13px] text-foreground/60">
             {session?.user?.userType === "dataset_user"
               ? `Personalized courses based on Dataset User ${session.user.id}'s history.` 
               : "Personalized courses based on your selected courses."}
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={() => signOut()} className="flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
-            <LogOut className="h-4 w-4" />
+          <button onClick={() => signOut()} className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-surface-raised transition-colors">
+            <LogOut className="h-3.5 w-3.5" />
             Sign Out
           </button>
         </div>
@@ -90,67 +90,34 @@ export default function Dashboard() {
       ) : (
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar for Taken Courses */}
-          <aside className="w-full lg:w-1/3 shrink-0">
-            <div className="sticky top-8 space-y-6">
-              <div className="flex items-center justify-between pl-1">
-                <h2 className="text-xl font-semibold text-slate-200">Courses You've Taken</h2>
-                {session?.user?.userType === "real_user" && (
-                  <Link href="/select-courses" className="flex items-center gap-2 rounded-lg bg-indigo-500/10 px-3 py-1.5 text-xs text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300 transition-colors">
-                    <Settings className="h-3.5 w-3.5" />
-                    Change my selections
-                  </Link>
-                )}
-              </div>
-              
-              <div className="space-y-3">
-                {takenCourses.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
-                    No courses taken yet.
-                  </div>
-                ) : (
-                  takenCourses.map((course) => (
-                    <div key={course.COURSE_ID} className="rounded-xl border border-white/5 bg-slate-900/30 p-4">
-                      <h3 className="text-sm font-medium text-slate-300 line-clamp-2">{course.TITLE}</h3>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {course.genres?.slice(0, 3).map(g => (
-                          <span key={g} className="rounded border border-white/5 bg-black/40 px-1.5 py-0.5 text-[10px] text-slate-500">
-                            {g}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </aside>
+
 
           {/* Core Recommendations Area */}
-          <main className="w-full lg:w-2/3">
-            <h2 className="text-xl font-semibold text-slate-200 mb-6 pl-1">Top Recommendations</h2>
+          <main className="w-full flex flex-col">
+            <h2 className="text-[13px] font-semibold uppercase tracking-wider text-foreground/60 mb-5">Top Recommendations</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {recommendations.map((rec, index) => (
-                <div key={rec.course_id} className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-slate-900/50 p-6 transition-all hover:bg-white/5 hover:border-white/10">
+                <div key={rec.course_id} className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border-subtle bg-surface p-5 transition-all hover:border-border hover:shadow-md">
                   <div>
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 font-bold">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-surface-raised border border-border-subtle text-[11px] font-semibold text-foreground/80">
                         #{index + 1}
                       </div>
-                      <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-300">
+                      <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">
                         <SparkleIcon />
                         {(rec.hybrid_score * 100).toFixed(0)}% Match
                       </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-100 title-font tracking-tight">{rec.title}</h3>
-                    <p className="mt-2 text-sm text-slate-400">Course ID: {rec.course_id}</p>
+                    <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">{rec.title}</h3>
+                    <p className="mt-1.5 text-[12px] font-mono text-foreground/40">ID: {rec.course_id}</p>
                   </div>
                   
                   <button 
                     onClick={() => setSelectedCourse(rec.course_id)}
-                    className="mt-6 flex w-full items-center justify-between rounded-xl bg-white/5 px-4 py-3 text-sm font-medium text-indigo-300 transition-colors hover:bg-indigo-500/10 hover:text-indigo-200 group-hover:bg-indigo-500 group-hover:text-white"
+                    className="mt-6 flex w-full items-center justify-between rounded-md border border-border-subtle bg-surface px-3 py-2 text-[13px] font-medium text-foreground/80 transition-colors hover:bg-surface-raised hover:text-foreground"
                   >
-                    Why this course?
-                    <Info className="h-4 w-4" />
+                    View explanation
+                    <Info className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}

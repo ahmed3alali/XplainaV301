@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "XplainaV301 | Hybrid Recommendations",
+  title: "Claripath | Hybrid Recommendations",
   description: "Explainable Course Recommendation System",
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-white selection:bg-indigo-500/30" suppressHydrationWarning>
+      <body className="font-sans min-h-full flex flex-col bg-background text-foreground selection:bg-brand selection:text-brand-foreground" suppressHydrationWarning>
         <AuthProvider>
           {children}
         </AuthProvider>
