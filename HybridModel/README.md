@@ -112,7 +112,7 @@ result[~nz_mask] = 0.0
 3. Keep the top-15 most similar dataset users (those with $J > 0$).
 4. Blend their pre-computed KNN predictions weighted by Jaccard similarity:
 
-   $$\text{CF}_{\text{dynamic}}(i) = \sum_{v \in \text{top-}k} \frac{J(u,v)}{\sum J} \cdot \hat{r}_{v,i}$$
+$$\text{CF}_{\text{dynamic}}(i) = \sum_{v \in \text{top-}k} \frac{J(u,v)}{\sum J} \cdot \hat{r}_{v,i}$$
 
 This gives real users a meaningful CF signal derived from the behaviour of users with the most similar course history, effectively solving the cold-start problem without retraining any model.
 
