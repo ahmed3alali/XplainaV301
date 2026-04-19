@@ -126,7 +126,7 @@ This is the main entry point called by the API for every recommendation request.
 
 **Formula:**
 
-$$\text{hybrid}(u, i) = \alpha \cdot \text{CF\_norm}(u, i) + (1 - \alpha) \cdot \text{Content\_norm}(u, i)$$
+$$\text{hybrid}(u, i) = \alpha \cdot \text{CF}_{\text{norm}}(u, i) + (1 - \alpha) \cdot \text{Content}_{\text{norm}}(u, i)$$
 
 Where:
 - $\alpha = 0.5$ by default (equal weighting; tunable via the API parameter)
