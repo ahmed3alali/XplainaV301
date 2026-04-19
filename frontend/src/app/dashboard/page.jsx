@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { api } from '@/services/api'
-import { Loader2, LogOut, Info, Settings } from 'lucide-react'
+import { Loader2, LogOut, Info, BookOpen } from 'lucide-react'
 import ExplainModal from '@/components/ExplainModal'
 import Link from 'next/link'
 
@@ -75,7 +75,16 @@ export default function Dashboard() {
               : "Personalized courses based on your selected courses."}
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {session?.user?.userType !== "dataset_user" && (
+            <Link
+              href="/select-courses?edit=1"
+              className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-surface-raised transition-colors"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              Edit Courses
+            </Link>
+          )}
           <button onClick={() => signOut()} className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-surface-raised transition-colors">
             <LogOut className="h-3.5 w-3.5" />
             Sign Out
@@ -98,19 +107,38 @@ export default function Dashboard() {
             <div className="grid gap-4 sm:grid-cols-2">
               {recommendations.map((rec, index) => (
                 <div key={rec.course_id} className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border-subtle bg-surface p-5 transition-all hover:border-border hover:shadow-md">
-                  <div>
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-surface-raised border border-border-subtle text-[11px] font-semibold text-foreground/80">
-                        #{index + 1}
-                      </div>
-                      <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">
-                        <SparkleIcon />
-                        {(rec.hybrid_score * 100).toFixed(0)}% Match
-                      </div>
+                <div>
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-surface-raised border border-border-subtle text-[11px] font-semibold text-foreground/80">
+                      #{index + 1}
                     </div>
-                    <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">{rec.title}</h3>
-                    <p className="mt-1.5 text-[12px] font-mono text-foreground/40">ID: {rec.course_id}</p>
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">
+                      <SparkleIcon />
+                      {(rec.hybrid_score * 100).toFixed(0)}% Match
+                    </div>
                   </div>
+                  <h3 className="text-[15px] font-medium text-foreground tracking-tight leading-snug">{rec.title}</h3>
+                  <p className="mt-1 text-[11px] font-mono text-foreground/30">ID: {rec.course_id}</p>
+
+                  {/* Genre tags */}
+                  {rec.genres?.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {rec.genres.slice(0, 4).map(g => (
+                        <span
+                          key={g}
+                          className="rounded border border-border-subtle bg-surface-raised px-1.5 py-0.5 text-[10px] font-medium text-foreground/50"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                      {rec.genres.length > 4 && (
+                        <span className="rounded border border-border-subtle bg-surface-raised px-1.5 py-0.5 text-[10px] font-medium text-foreground/40">
+                          +{rec.genres.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
                   
                   <button 
                     onClick={() => setSelectedCourse(rec.course_id)}

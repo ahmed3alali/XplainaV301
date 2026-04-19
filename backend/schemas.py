@@ -10,6 +10,7 @@ class RecommendationOut(BaseModel):
     course_id: str
     title: str
     hybrid_score: float
+    genres: List[str] = []
 
 class ExplanationOut(BaseModel):
     course_id: str

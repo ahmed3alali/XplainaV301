@@ -236,6 +236,98 @@ def _normalize_series(s: pd.Series) -> pd.Series:
     return (s - mn) / (mx - mn)
 
 
+def _normalize_cf_series(s: pd.Series) -> pd.Series:
+    """
+    Smooth CF normalization that avoids the bimodal 0% / 67-100% problem.
+
+    The User-KNN model stores 0 for items where no neighbour has a rating
+    (structural sparsity), not a true "lowest rating".  Including those zeros
+    in a global min-max normalisation compresses all real predictions into the
+    top third of the [0, 1] range, making every CF score appear as '0% or~100%'.
+
+    Fix: normalise *only* within the sub-set of items that have an actual
+    prediction (> 0).  Those items are spread smoothly across [0, 1], while
+    items with no prediction stay at 0 (= no collaborative signal).
+    """
+    nz_mask = s > 0
+    if not nz_mask.any():
+        return pd.Series(0.0, index=s.index)
+
+    nz = s[nz_mask]
+    mn, mx = nz.min(), nz.max()
+    result = pd.Series(0.0, index=s.index)
+    if mx > mn:
+        result[nz_mask] = (nz - mn) / (mx - mn)
+    else:
+        # All predicted values are identical → give them all a mid-range score
+        result[nz_mask] = 0.5
+    return result
+
+
+def build_dynamic_cf_series(
+    selected_items: list,
+    cf_predictions: dict,
+    train_df: pd.DataFrame,
+    all_items: list,
+    k_neighbors: int = 15,
+) -> pd.Series:
+    """
+    Build a CF signal for a cold-start (new / real) user by finding the K most
+    similar dataset users based on shared course selection, then blending their
+    pre-computed CF predictions weighted by Jaccard similarity.
+
+    This solves the problem where real users (not in ratings.csv) always receive
+    a CF score of 0, making their recommendations purely content-based while
+    showing a misleading '0% CF' in the explanation modal.
+
+    Parameters
+    ----------
+    selected_items : list of course IDs the user has completed / selected
+    cf_predictions : pre-computed CF dict  {dataset_user_id → pd.Series}
+    train_df       : training ratings DataFrame  (columns: user, item, rating)
+    all_items      : full list of course IDs that defines the output index
+    k_neighbors    : number of similar dataset users to blend  (default 15)
+
+    Returns
+    -------
+    pd.Series (item → blended CF score), zeros where no signal exists
+    """
+    selected_set = set(selected_items)
+    if not selected_set or not cf_predictions:
+        return pd.Series(0.0, index=all_items)
+
+    # Build a {user → set-of-items} map from the training ratings
+    user_items_map = train_df.groupby("user")["item"].apply(set).to_dict()
+
+    # Compute Jaccard similarity between this user and every dataset user
+    similarities: list[tuple] = []
+    for u, u_items in user_items_map.items():
+        if u not in cf_predictions:
+            continue
+        intersection = len(selected_set & u_items)
+        if intersection == 0:
+            continue   # no overlap at all → skip
+        union = len(selected_set | u_items)
+        sim = intersection / union
+        similarities.append((u, sim))
+
+    if not similarities:
+        return pd.Series(0.0, index=all_items)
+
+    # Keep only the top-K most similar neighbours
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    top_neighbours = similarities[:k_neighbors]
+
+    # Weighted blend of their pre-computed CF predictions
+    total_weight = sum(sim for _, sim in top_neighbours)
+    blended = pd.Series(0.0, index=all_items, dtype=np.float64)
+    for u, sim in top_neighbours:
+        pred = cf_predictions[u].reindex(all_items).fillna(0.0)
+        blended += (sim / total_weight) * pred
+
+    return blended
+
+
 def hybrid_scores_for_user(
     user: int,
     train_df: pd.DataFrame,
@@ -244,6 +336,7 @@ def hybrid_scores_for_user(
     alpha: float = 0.5,          # weight for CF  (1-alpha → content)
     top_n: int = 10,
     normalize: bool = True,
+    user_items_override: list | None = None,  # explicit course list (real / new users)
 ) -> pd.Series:
     """
     Compute a hybrid score for every unseen item for a single user.
@@ -252,29 +345,47 @@ def hybrid_scores_for_user(
 
     Parameters
     ----------
-    user          : user id
-    train_df      : training ratings DataFrame (user, item, rating)
-    cf_predictions: dict of {user: pd.Series(item → predicted_rating)}
-    sim_df        : course×course cosine similarity DataFrame
-    alpha         : blend weight in [0, 1] (1 = pure CF, 0 = pure content)
-    top_n         : number of recommendations to return
-    normalize     : whether to min-max normalize each signal before blending
+    user               : user id (can be a fake sentinel for new/real users)
+    train_df           : training ratings DataFrame  (user, item, rating)
+    cf_predictions     : dict of {user: pd.Series(item → predicted_rating)}
+    sim_df             : course×course cosine similarity DataFrame
+    alpha              : blend weight in [0, 1]  (1 = pure CF, 0 = pure content)
+    top_n              : number of recommendations to return
+    normalize          : whether to normalize each signal before blending
+    user_items_override: if supplied, use this list as the user's taken courses
+                         instead of looking up train_df.  Enables real-user
+                         (cold-start) support without a row in train_df.
 
     Returns
     -------
     pd.Series of (item → hybrid_score), sorted descending, length top_n
     """
-    seen = set(train_df.loc[train_df["user"] == user, "item"])
     all_items = sim_df.columns.tolist()
+
+    # ── Resolve what courses this user has already taken ───────────────────────
+    if user_items_override is not None:
+        taken_items = list(user_items_override)
+    else:
+        taken_items = train_df.loc[train_df["user"] == user, "item"].tolist()
+    seen = set(taken_items)
 
     # ── CF signal ──────────────────────────────────────────────────────────────
     if user in cf_predictions:
+        # Known dataset user: use their pre-computed KNN predictions directly
         cf_series = cf_predictions[user].reindex(all_items).fillna(0.0)
+    elif taken_items:
+        # Cold-start / real user: derive CF from similar dataset users
+        cf_series = build_dynamic_cf_series(
+            selected_items=taken_items,
+            cf_predictions=cf_predictions,
+            train_df=train_df,
+            all_items=all_items,
+        )
     else:
         cf_series = pd.Series(0.0, index=all_items)
 
     # ── Content signal ─────────────────────────────────────────────────────────
-    user_items = [i for i in train_df.loc[train_df["user"] == user, "item"] if i in sim_df.index]
+    user_items = [i for i in taken_items if i in sim_df.index]
     if user_items:
         content_series = sim_df.loc[user_items].mean(axis=0).reindex(all_items).fillna(0.0)
     else:
@@ -282,7 +393,8 @@ def hybrid_scores_for_user(
 
     # ── Normalize ──────────────────────────────────────────────────────────────
     if normalize:
-        cf_series = _normalize_series(cf_series)
+        # Use CF-aware normalization (avoids bimodal 0%/100% artifact)
+        cf_series = _normalize_cf_series(cf_series)
         content_series = _normalize_series(content_series)
 
     # ── Blend ──────────────────────────────────────────────────────────────────

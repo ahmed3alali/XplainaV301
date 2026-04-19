@@ -8,6 +8,11 @@ export const api = {
     return res.data;
   },
 
+  async getAllCourses() {
+    const res = await axios.get(`${API_BASE}/courses`, { params: { limit: 9999 } });
+    return res.data;
+  },
+
   async getMyCourses(token) {
     const res = await axios.get(`${API_BASE}/courses/my-courses`, {
       headers: { "Authorization": `Bearer ${token}` }
