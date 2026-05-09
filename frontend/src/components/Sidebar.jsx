@@ -15,7 +15,7 @@ export default function Sidebar() {
   useEffect(() => {
     async function loadCourses() {
       if (!session?.user?.apiToken) return
-      
+
       try {
         setLoading(true)
         const res = await fetch("http://127.0.0.1:8000/courses/my-courses", {
@@ -77,8 +77,8 @@ export default function Sidebar() {
         ) : (
           <div className="space-y-1.5">
             {courses.map((course, idx) => (
-              <button 
-                key={idx} 
+              <button
+                key={idx}
                 onClick={() => setSelectedCourse(course)}
                 className="w-full text-left group relative rounded-md border border-transparent bg-transparent px-3 py-2.5 transition-all hover:bg-surface hover:border-border-subtle cursor-pointer"
               >
@@ -99,9 +99,9 @@ export default function Sidebar() {
       </div>
 
       {selectedCourse && (
-        <SeedCourseModal 
-          course={selectedCourse} 
-          onClose={() => setSelectedCourse(null)} 
+        <SeedCourseModal
+          course={selectedCourse}
+          onClose={() => setSelectedCourse(null)}
         />
       )}
     </aside>
@@ -131,12 +131,12 @@ function SeedCourseModal({ course, onClose }) {
               Why is this course here?
             </div>
             <p className="text-[13px] leading-relaxed text-foreground/70">
-              This is a <strong className="text-foreground font-medium">Seed Course</strong>. 
-              We automatically selected it because it perfectly matches the skills you chose during onboarding. 
+              This is a <strong className="text-foreground font-medium">Seed Course</strong>.
+              We automatically selected it because it perfectly matches the skills you chose during onboarding.
               It acts as a foundation to trigger the AI model and generate your personalized recommendations.
             </p>
           </div>
-          
+
           <div>
             <h3 className="mb-3 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course Genres</h3>
             <div className="flex flex-wrap gap-2">
@@ -150,7 +150,7 @@ function SeedCourseModal({ course, onClose }) {
               )}
             </div>
           </div>
-          
+
           <div className="mt-6">
             <h3 className="mb-2 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course ID</h3>
             <p className="text-[13px] font-mono text-foreground/60">{course.course_id || course.COURSE_ID}</p>
