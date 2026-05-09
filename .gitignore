@@ -1,3 +1,5 @@
 models/
 HybridModel/models/
 *.pkl
+backend/.env
+.env

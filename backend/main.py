@@ -30,6 +30,7 @@ if env_path.exists():
                 os.environ[k] = v
 
 from api_auth import router as auth_router, get_current_user
+from api_admin import router as admin_router
 
 from schemas import (
     CourseOut, RecommendationOut, ExplanationOut, 
@@ -93,6 +94,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(auth_router)
+app.include_router(admin_router)
 
 
 @app.get("/health")

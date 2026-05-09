@@ -11,6 +11,7 @@ anthropic
 httpx
 pytest
 passlib[bcrypt]
+bcrypt
 pyjwt
 cryptography
 google-auth
