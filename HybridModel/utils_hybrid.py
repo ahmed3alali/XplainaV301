@@ -224,7 +224,7 @@ def build_cf_predictions(train_utility: pd.DataFrame, k: int = 20):
     pred_item = {u: pd.Series(i_preds[i], index=items) for i, u in enumerate(users)}
 
     return pred_user, pred_item
-
+    
 
 # ── hybrid scoring ─────────────────────────────────────────────────────────────
 

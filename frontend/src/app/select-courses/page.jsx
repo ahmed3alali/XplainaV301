@@ -1,376 +1,450 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, useMemo, Suspense } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '@/services/api'
-import {
-  BookOpen, Check, ArrowRight, Loader2, LogOut,
-  Search, X, ChevronLeft, ChevronRight, ArrowLeft,
-} from 'lucide-react'
+import { ArrowRight, ArrowLeft, Loader2, Sparkles, Check } from 'lucide-react'
 
-const PAGE_SIZE = 12
+// ── Static data ────────────────────────────────────────────────────────────────
 
-function SelectCoursesInner() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const isEditMode = searchParams.get('edit') === '1'
+const TOTAL_STEPS = 5
 
-  const [allCourses, setAllCourses] = useState([])   // full catalogue, never paginated
-  const [selected, setSelected] = useState(new Set())
-  const [loadingCourses, setLoadingCourses] = useState(true)
-  const [checkingUser, setCheckingUser] = useState(true)
-  const [saving, setSaving] = useState(false)
+const EDUCATION_LEVELS = [
+  { id: 'undergraduate', label: 'Undergraduate', icon: '🎓', desc: "Bachelor's student" },
+  { id: 'graduate',      label: 'Graduate',      icon: '📚', desc: "Master's student"  },
+  { id: 'phd',           label: 'PhD',            icon: '🔬', desc: 'Doctoral researcher' },
+]
 
-  const [query, setQuery] = useState('')
-  const [page, setPage] = useState(1)
+const YEARS_BY_LEVEL = {
+  undergraduate: ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year+'],
+  graduate:      ['Year 1', 'Year 2', 'Year 3+'],
+  phd:           ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5+'],
+}
 
-  // ── Auth guard & pre-load existing selections ──────────────────────────
-  useEffect(() => {
-    async function init() {
-      if (status === 'unauthenticated') { router.push('/login'); return }
-      if (status !== 'authenticated') return
+// Maps the 14 backend genre columns to human-friendly labels + keywords for text matching
+const SKILLS = [
+  { id: 'Python',          label: 'Python',            icon: '🐍', keywords: ['python', 'programming', 'coding', 'script'] },
+  { id: 'MachineLearning', label: 'Machine Learning',  icon: '🤖', keywords: ['machine learning', 'ml', 'model', 'prediction', 'ai', 'artificial intelligence', 'neural', 'deep learning'] },
+  { id: 'DataScience',     label: 'Data Science',      icon: '📊', keywords: ['data science', 'data scientist', 'analytics', 'insight'] },
+  { id: 'DataAnalysis',    label: 'Data Analysis',     icon: '🔍', keywords: ['data analysis', 'analyse', 'analyze', 'visualization', 'visualise', 'chart', 'excel', 'tableau'] },
+  { id: 'Database',        label: 'Databases',          icon: '🗄️', keywords: ['database', 'sql', 'query', 'mysql', 'postgres', 'nosql', 'mongodb'] },
+  { id: 'CloudComputing',  label: 'Cloud Computing',   icon: '☁️', keywords: ['cloud', 'aws', 'azure', 'gcp', 'google cloud', 'serverless', 'infrastructure'] },
+  { id: 'BigData',         label: 'Big Data',           icon: '🌐', keywords: ['big data', 'spark', 'hadoop', 'kafka', 'pipeline', 'stream'] },
+  { id: 'ComputerVision',  label: 'Computer Vision',   icon: '👁️', keywords: ['computer vision', 'image', 'opencv', 'detection', 'recognition', 'video'] },
+  { id: 'Containers',      label: 'Containers / DevOps',icon: '📦', keywords: ['docker', 'kubernetes', 'container', 'devops', 'ci/cd', 'deploy'] },
+  { id: 'BackendDev',      label: 'Backend Dev',        icon: '⚙️', keywords: ['backend', 'api', 'server', 'rest', 'fastapi', 'django', 'flask', 'node'] },
+  { id: 'FrontendDev',     label: 'Frontend Dev',       icon: '🖥️', keywords: ['frontend', 'react', 'web', 'html', 'css', 'javascript', 'ui', 'interface'] },
+  { id: 'Chatbot',         label: 'AI Chatbots',        icon: '💬', keywords: ['chatbot', 'nlp', 'language model', 'llm', 'gpt', 'conversational', 'natural language'] },
+  { id: 'Blockchain',      label: 'Blockchain',         icon: '🔗', keywords: ['blockchain', 'crypto', 'web3', 'smart contract', 'ethereum'] },
+  { id: 'R',               label: 'R / Statistics',     icon: '📈', keywords: ['statistics', 'r language', 'statistical', 'probability', 'regression', 'rstudio'] },
+]
 
-      // Dataset users cannot edit courses – bounce them to dashboard
-      if (session.user.isDatasetUser) { router.push('/dashboard'); return }
+const SKILL_MAP = Object.fromEntries(SKILLS.map(s => [s.id, s]))
 
-      // Load existing course selections (works for both first-visit & edit)
-      try {
-        const res = await fetch('http://127.0.0.1:8000/courses/my-courses', {
-          headers: { Authorization: `Bearer ${session.user.apiToken}` },
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data?.length > 0) {
-            setSelected(new Set(data.map(c => c.COURSE_ID)))
-          }
-        }
-      } catch (_) {}
+// ── Rank skills by interest text ───────────────────────────────────────────────
+// Returns skills sorted: matched ones first, then the rest alphabetically.
+// Always returns all 14 but with matched ones highlighted (caller decides how many to show).
+function rankSkillsByText(text) {
+  if (!text || text.trim().length < 3) return SKILLS
 
-      setCheckingUser(false)
-
-      // Load full course catalogue
-      try {
-        const data = await api.getAllCourses()
-        setAllCourses(data)
-      } catch (err) {
-        console.error('Failed to load courses', err)
-      } finally {
-        setLoadingCourses(false)
-      }
+  const lower = text.toLowerCase()
+  const scored = SKILLS.map(skill => {
+    let score = 0
+    for (const kw of skill.keywords) {
+      if (lower.includes(kw)) score += kw.split(' ').length // multi-word phrases score higher
     }
-    init()
-  }, [status, session, router])
+    return { ...skill, score }
+  })
 
-  // ── Search: filters across ALL courses, not just current page ──────────
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return allCourses
-    return allCourses.filter(
-      c =>
-        c.TITLE.toLowerCase().includes(q) ||
-        c.COURSE_ID.toLowerCase().includes(q) ||
-        c.genres?.some(g => g.toLowerCase().includes(q))
-    )
-  }, [allCourses, query])
+  // Sort: highest score first, then by label alphabetically for ties
+  scored.sort((a, b) => b.score - a.score || a.label.localeCompare(b.label))
+  return scored
+}
 
-  // Reset to page 1 whenever search changes
-  useEffect(() => { setPage(1) }, [query])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const pageCourses = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  // ── Toggle individual course ────────────────────────────────────────────
-  const toggle = (id) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  // ── Save & navigate ────────────────────────────────────────────────────
-  const handleSave = async () => {
-    setSaving(true)
-    const ids = Array.from(selected)
-    localStorage.setItem('selectedCourses', JSON.stringify(ids))
-
-    if (session?.user?.apiToken) {
-      try {
-        await fetch('http://127.0.0.1:8000/courses/my-courses', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.user.apiToken}`,
-          },
-          body: JSON.stringify({ selected_courses: ids }),
-        })
-      } catch (err) {
-        console.error('Failed to save courses', err)
-      }
-    }
-    router.push('/dashboard')
-  }
-
-  // ── Loading states ─────────────────────────────────────────────────────
-  if (status === 'loading' || checkingUser) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    )
-  }
-
-  // ── Pagination controls ────────────────────────────────────────────────
-  const canPrev = page > 1
-  const canNext = page < totalPages
-
-  const pageWindow = () => {
-    const delta = 2
-    const range = []
-    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
-      range.push(i)
-    }
-    return range
-  }
-
+// ── Progress bar ───────────────────────────────────────────────────────────────
+function StepDots({ current }) {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-
-        {/* ── Header ──────────────────────────────────────────────────── */}
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            {isEditMode && (
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="mb-3 flex items-center gap-1.5 text-[12px] text-foreground/50 hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                Back to Dashboard
-              </button>
-            )}
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1.5">
-              {isEditMode ? 'Edit Your Courses' : 'Build Your Profile'}
-            </h1>
-            <p className="text-sm text-foreground/50">
-              {isEditMode
-                ? 'Update the courses you have taken. Changes will refresh your recommendations.'
-                : 'Select courses you have previously taken to personalise your recommendations.'}
-            </p>
-          </div>
-          <button
-            onClick={() => signOut()}
-            className="flex shrink-0 items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-surface-raised transition-colors"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Sign Out
-          </button>
-        </div>
-
-        {/* ── Search bar ──────────────────────────────────────────────── */}
-        <div className="relative mb-6">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search by course name, ID, or topic…"
-            className="w-full rounded-lg border border-border-subtle bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-border focus:ring-0 transition-colors"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/70 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {/* ── Results count ───────────────────────────────────────────── */}
-        <div className="mb-4 flex items-center justify-between text-[12px] text-foreground/40">
-          <span>
-            {query
-              ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"`
-              : `${allCourses.length} courses total`}
-          </span>
-          {selected.size > 0 && (
-            <span className="text-foreground/60">
-              <span className="text-foreground font-medium">{selected.size}</span> selected
-            </span>
-          )}
-        </div>
-
-        {/* ── Course grid ─────────────────────────────────────────────── */}
-        {loadingCourses ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-accent" />
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-foreground/40">
-            <Search className="h-8 w-8" />
-            <p className="text-sm">No courses match your search</p>
-            <button onClick={() => setQuery('')} className="text-[12px] text-accent hover:underline">
-              Clear search
-            </button>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pb-28">
-            {pageCourses.map(course => {
-              const isSelected = selected.has(course.COURSE_ID)
-              return (
-                <div
-                  key={course.COURSE_ID}
-                  onClick={() => toggle(course.COURSE_ID)}
-                  className={`group relative cursor-pointer overflow-hidden rounded-lg border p-4 transition-all duration-200 ${
-                    isSelected
-                      ? 'border-brand bg-surface shadow-[inset_0_0_0_1px_var(--color-brand)]'
-                      : 'border-border-subtle bg-surface hover:border-border hover:bg-surface-raised'
-                  }`}
-                >
-                  <div className="mb-3 flex items-start justify-between">
-                    <BookOpen
-                      className={`h-[17px] w-[17px] ${
-                        isSelected ? 'text-brand' : 'text-foreground/30 group-hover:text-foreground/50'
-                      }`}
-                    />
-                    <div
-                      className={`flex h-[17px] w-[17px] items-center justify-center rounded-sm border transition-all ${
-                        isSelected
-                          ? 'border-brand bg-brand text-brand-foreground scale-100'
-                          : 'border-border-subtle group-hover:border-border text-transparent'
-                      }`}
-                    >
-                      <Check className="h-2.5 w-2.5 font-bold" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-[14px] font-medium text-foreground line-clamp-2 leading-snug mb-1">
-                    {course.TITLE}
-                  </h3>
-                  <p className="text-[11px] font-mono text-foreground/30 mb-3">{course.COURSE_ID}</p>
-
-                  <div className="flex flex-wrap gap-1">
-                    {course.genres?.slice(0, 3).map(g => (
-                      <span
-                        key={g}
-                        className="rounded border border-border-subtle bg-background px-1.5 py-0.5 text-[10px] font-medium text-foreground/50"
-                      >
-                        {g}
-                      </span>
-                    ))}
-                    {course.genres?.length > 3 && (
-                      <span className="rounded border border-border-subtle bg-background px-1.5 py-0.5 text-[10px] font-medium text-foreground/50">
-                        +{course.genres.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* ── Pagination ──────────────────────────────────────────────── */}
-        {totalPages > 1 && (
-          <div className="fixed bottom-[72px] left-0 right-0 flex justify-center pb-2 z-40 pointer-events-none">
-            <div className="pointer-events-auto flex items-center gap-1 rounded-lg border border-border-subtle bg-surface/90 backdrop-blur-md px-3 py-2 shadow-lg">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={!canPrev}
-                className="flex h-7 w-7 items-center justify-center rounded text-foreground/40 hover:text-foreground hover:bg-surface-raised disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-
-              {page > 3 && (
-                <>
-                  <button onClick={() => setPage(1)} className="h-7 min-w-[28px] rounded px-1.5 text-[12px] text-foreground/50 hover:bg-surface-raised hover:text-foreground transition-colors">1</button>
-                  {page > 4 && <span className="px-1 text-[12px] text-foreground/30">…</span>}
-                </>
-              )}
-
-              {pageWindow().map(n => (
-                <button
-                  key={n}
-                  onClick={() => setPage(n)}
-                  className={`h-7 min-w-[28px] rounded px-1.5 text-[12px] font-medium transition-colors ${
-                    n === page
-                      ? 'bg-brand text-brand-foreground'
-                      : 'text-foreground/50 hover:bg-surface-raised hover:text-foreground'
-                  }`}
-                >
-                  {n}
-                </button>
-              ))}
-
-              {page < totalPages - 2 && (
-                <>
-                  {page < totalPages - 3 && <span className="px-1 text-[12px] text-foreground/30">…</span>}
-                  <button onClick={() => setPage(totalPages)} className="h-7 min-w-[28px] rounded px-1.5 text-[12px] text-foreground/50 hover:bg-surface-raised hover:text-foreground transition-colors">{totalPages}</button>
-                </>
-              )}
-
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={!canNext}
-                className="flex h-7 w-7 items-center justify-center rounded text-foreground/40 hover:text-foreground hover:bg-surface-raised disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Sticky footer CTA ───────────────────────────────────────── */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 glass-panel border-x-0 border-b-0 border-t">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <p className="text-[13px] font-medium text-foreground/50">
-              <span className="text-foreground font-semibold">{selected.size}</span>{' '}
-              {selected.size === 1 ? 'course' : 'courses'} selected
-            </p>
-            <div className="flex items-center gap-3">
-              {isEditMode && (
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="rounded-md border border-border-subtle bg-surface px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-surface-raised hover:text-foreground transition-colors"
-                >
-                  Cancel
-                </button>
-              )}
-              <button
-                onClick={handleSave}
-                disabled={saving || selected.size === 0}
-                className="flex items-center gap-2 rounded-md bg-brand px-5 py-2 text-[13px] font-medium text-brand-foreground shadow-sm transition-all hover:bg-brand/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    {isEditMode ? 'Save Changes' : 'Continue'}
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-      </div>
+    <div className="flex items-center gap-2 mb-10">
+      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+        <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${
+          i < current ? 'bg-accent w-6' : i === current ? 'bg-accent/70 w-4' : 'bg-white/10 w-4'
+        }`} />
+      ))}
+      <span className="ml-2 text-[11px] text-white/30 font-mono tabular-nums">
+        {current + 1} / {TOTAL_STEPS}
+      </span>
     </div>
   )
 }
 
-export default function SelectCoursesPage() {
+function WizardCard({ children }) {
   return (
-    <Suspense fallback={
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    }>
-      <SelectCoursesInner />
-    </Suspense>
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-xl">{children}</div>
+    </div>
   )
+}
+
+// ── Step 1 ─────────────────────────────────────────────────────────────────────
+function Step1({ value, onChange, onNext }) {
+  return (
+    <WizardCard>
+      <StepDots current={0} />
+      <p className="text-[11px] font-mono tracking-widest text-accent/70 uppercase mb-3">About you</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">What best describes you?</h1>
+      <p className="text-sm text-white/40 mb-8">This helps us tailor your learning journey.</p>
+      <div className="grid gap-3 mb-10">
+        {EDUCATION_LEVELS.map(lvl => (
+          <button key={lvl.id} id={`edu-${lvl.id}`} onClick={() => onChange(lvl.id)}
+            className={`group relative flex items-center gap-4 rounded-xl border px-5 py-4 text-left transition-all duration-200 ${
+              value === lvl.id
+                ? 'border-accent bg-accent/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]'
+                : 'border-white/8 bg-surface hover:border-white/15 hover:bg-surface-raised'
+            }`}>
+            <span className="text-2xl select-none">{lvl.icon}</span>
+            <div className="flex-1">
+              <p className="text-[15px] font-medium text-foreground">{lvl.label}</p>
+              <p className="text-[12px] text-white/40">{lvl.desc}</p>
+            </div>
+            <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-all ${
+              value === lvl.id ? 'border-accent bg-accent' : 'border-white/20'
+            }`}>
+              {value === lvl.id && <Check className="h-3 w-3 text-white" />}
+            </div>
+          </button>
+        ))}
+      </div>
+      <button id="step1-next" onClick={onNext} disabled={!value}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-all hover:bg-accent/90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+        Continue <ArrowRight className="h-4 w-4" />
+      </button>
+    </WizardCard>
+  )
+}
+
+// ── Step 2 ─────────────────────────────────────────────────────────────────────
+function Step2({ educationLevel, value, onChange, onNext, onBack }) {
+  const years = YEARS_BY_LEVEL[educationLevel] || YEARS_BY_LEVEL.undergraduate
+  return (
+    <WizardCard>
+      <StepDots current={1} />
+      <button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back
+      </button>
+      <p className="text-[11px] font-mono tracking-widest text-accent/70 uppercase mb-3">Academic standing</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">What year are you in?</h1>
+      <p className="text-sm text-white/40 mb-8">We use this to recommend appropriately paced courses.</p>
+      <div className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-3">
+        {years.map(yr => (
+          <button key={yr} id={`year-${yr.replace(/\s+/g, '-')}`} onClick={() => onChange(yr)}
+            className={`rounded-xl border px-4 py-3.5 text-[14px] font-medium transition-all duration-200 ${
+              value === yr
+                ? 'border-accent bg-accent/10 text-accent shadow-[0_0_0_1px_rgba(59,130,246,0.3)]'
+                : 'border-white/8 bg-surface text-white/70 hover:border-white/15 hover:bg-surface-raised hover:text-white'
+            }`}>
+            {yr}
+          </button>
+        ))}
+      </div>
+      <button id="step2-next" onClick={onNext} disabled={!value}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-all hover:bg-accent/90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+        Continue <ArrowRight className="h-4 w-4" />
+      </button>
+    </WizardCard>
+  )
+}
+
+// ── Step 3 ─────────────────────────────────────────────────────────────────────
+function Step3({ value, onChange, onNext, onBack }) {
+  const MIN_CHARS = 10
+  const MAX_CHARS = 300
+  const len = value.trim().length
+  const isValid = len >= MIN_CHARS
+  return (
+    <WizardCard>
+      <StepDots current={2} />
+      <button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back
+      </button>
+      <p className="text-[11px] font-mono tracking-widest text-accent/70 uppercase mb-3">Your interests</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">What are you interested in exploring?</h1>
+      <p className="text-sm text-white/40 mb-8">Write 1–2 sentences. We'll use this to suggest the right skills.</p>
+      <div className="relative mb-3">
+        <textarea id="interest-text" value={value} onChange={e => onChange(e.target.value.slice(0, MAX_CHARS))}
+          rows={4} placeholder="e.g. I want to build machine learning models and understand how to deploy them to the cloud…"
+          className="w-full resize-none rounded-xl border border-white/10 bg-surface px-4 py-3.5 text-[14px] text-foreground placeholder:text-white/20 outline-none focus:border-accent/50 focus:ring-0 transition-colors leading-relaxed" />
+        <span className={`absolute bottom-3 right-3 text-[11px] font-mono ${len > MAX_CHARS * 0.9 ? 'text-amber-400' : 'text-white/20'}`}>
+          {len}/{MAX_CHARS}
+        </span>
+      </div>
+      <button id="step3-next" onClick={onNext} disabled={!isValid}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-all hover:bg-accent/90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+        Continue <ArrowRight className="h-4 w-4" />
+      </button>
+    </WizardCard>
+  )
+}
+
+// ── Step 4 ─────────────────────────────────────────────────────────────────────
+function Step4({ rankedSkills, selected, onToggle, onNext, onBack, loading }) {
+  const count = selected.size
+  const canContinue = count >= 2 && count <= 6
+
+  // Split into suggested (score > 0) and rest
+  const suggested = rankedSkills.filter(s => s.score > 0)
+  const rest = rankedSkills.filter(s => s.score === 0)
+
+  const SkillChip = ({ skill }) => {
+    const isSelected = selected.has(skill.id)
+    const isDisabled = !isSelected && count >= 6
+    return (
+      <button key={skill.id} id={`skill-${skill.id}`} onClick={() => !isDisabled && onToggle(skill.id)}
+        disabled={isDisabled}
+        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
+          isSelected
+            ? 'border-accent bg-accent/20 text-accent shadow-[0_0_0_1px_rgba(59,130,246,0.3)] scale-105'
+            : isDisabled
+            ? 'border-white/5 bg-surface text-white/20 cursor-not-allowed'
+            : 'border-white/10 bg-surface text-white/60 hover:border-white/25 hover:text-white hover:bg-surface-raised'
+        }`}>
+        <span className="text-base leading-none select-none">{skill.icon}</span>
+        {skill.label}
+        {isSelected && <Check className="h-3 w-3 flex-shrink-0" />}
+      </button>
+    )
+  }
+
+  return (
+    <WizardCard>
+      <StepDots current={3} />
+      <button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back
+      </button>
+      <p className="text-[11px] font-mono tracking-widest text-accent/70 uppercase mb-3">Skills &amp; topics</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">Which areas excite you most?</h1>
+      <p className="text-sm text-white/40 mb-8">Pick <strong className="text-white/70">3 to 6</strong> topics that interest you.</p>
+
+      {suggested.length > 0 && (
+        <>
+          <p className="text-[11px] font-mono text-accent/60 uppercase tracking-widest mb-3">Suggested based on your interests</p>
+          <div className="flex flex-wrap gap-2.5 mb-5">
+            {suggested.map(skill => <SkillChip key={skill.id} skill={skill} />)}
+          </div>
+          {rest.length > 0 && (
+            <>
+              <p className="text-[11px] font-mono text-white/30 uppercase tracking-widest mb-3 mt-2">Other topics</p>
+              <div className="flex flex-wrap gap-2.5 mb-8">
+                {rest.map(skill => <SkillChip key={skill.id} skill={skill} />)}
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {suggested.length === 0 && (
+        <div className="flex flex-wrap gap-2.5 mb-8">
+          {rankedSkills.map(skill => <SkillChip key={skill.id} skill={skill} />)}
+        </div>
+      )}
+
+      <div className="mb-6 flex items-center justify-between text-[12px]">
+        <span className={count >= 3 ? 'text-accent' : 'text-white/30'}>
+          {count < 2 ? `Select at least ${3 - count} more` : `${count} selected ✓`}
+        </span>
+        {count > 6 && <span className="text-amber-400">Max 6 skills</span>}
+      </div>
+
+      <button id="step4-next" onClick={onNext} disabled={!canContinue || loading}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-all hover:bg-accent/90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+        {loading ? (<><Loader2 className="h-4 w-4 animate-spin" />Finding courses for you…</>) : (<>Continue<ArrowRight className="h-4 w-4" /></>)}
+      </button>
+    </WizardCard>
+  )
+}
+
+// ── Step 5 ─────────────────────────────────────────────────────────────────────
+function Step5({ extraSkills, accepted, onToggle, onFinish, onBack, loading }) {
+  return (
+    <WizardCard>
+      <StepDots current={4} />
+      <button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back
+      </button>
+      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] text-accent font-medium">
+        <Sparkles className="h-3 w-3" />Discovered from your recommendations
+      </div>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">We also found courses in these areas</h1>
+      <p className="text-sm text-white/40 mb-8">
+        Based on your selections, our system also surfaced courses touching these topics. Would you like to include them?
+      </p>
+      {extraSkills.length === 0 ? (
+        <p className="text-sm text-white/30 mb-8 italic">Your selections already cover everything — great taste!</p>
+      ) : (
+        <div className="flex flex-wrap gap-2.5 mb-8">
+          {extraSkills.map(skillId => {
+            const skill = SKILL_MAP[skillId] || { id: skillId, label: skillId, icon: '✨' }
+            const isAccepted = accepted.has(skillId)
+            return (
+              <button key={skillId} id={`extra-skill-${skillId}`} onClick={() => onToggle(skillId)}
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
+                  isAccepted
+                    ? 'border-accent bg-accent/20 text-accent shadow-[0_0_0_1px_rgba(59,130,246,0.3)] scale-105'
+                    : 'border-white/10 bg-surface text-white/60 hover:border-white/25 hover:text-white hover:bg-surface-raised'
+                }`}>
+                <span className="text-base leading-none select-none">{skill.icon}</span>
+                {skill.label}
+                {isAccepted && <Check className="h-3 w-3 flex-shrink-0" />}
+              </button>
+            )
+          })}
+        </div>
+      )}
+      <button id="step5-finish" onClick={onFinish} disabled={loading}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-all hover:bg-accent/90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+        {loading ? (<><Loader2 className="h-4 w-4 animate-spin" />Building your recommendations…</>) : (<><Sparkles className="h-4 w-4" />See my recommendations</>)}
+      </button>
+    </WizardCard>
+  )
+}
+
+function LoadingOverlay({ message }) {
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      <p className="text-sm text-white/50">{message}</p>
+    </div>
+  )
+}
+
+// ── Main wizard ────────────────────────────────────────────────────────────────
+export default function OnboardingWizard() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  const [step, setStep] = useState(0)
+  const [educationLevel, setEducationLevel] = useState('')
+  const [collegeYear, setCollegeYear] = useState('')
+  const [interestText, setInterestText] = useState('')
+  const [selectedSkills, setSelectedSkills] = useState(new Set())
+  const [extraSkills, setExtraSkills] = useState([])
+  const [acceptedExtras, setAcceptedExtras] = useState(new Set())
+  const [cachedRecs, setCachedRecs] = useState(null)
+  const [cachedSeeds, setCachedSeeds] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  // Auth guard — runs only once when status resolves
+  useEffect(() => {
+    if (status === 'unauthenticated') router.push('/login')
+    if (status === 'authenticated' && session?.user?.userType === 'dataset_user') {
+      router.push('/dashboard')
+    }
+  }, [status]) // intentionally only [status] to avoid re-running on every session update
+
+  const toggleSkill = useCallback((id) => {
+    setSelectedSkills(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }, [])
+
+  const toggleExtra = useCallback((id) => {
+    setAcceptedExtras(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }, [])
+
+  // Rank skills from interest text — memoised inline
+  const rankedSkills = rankSkillsByText(interestText)
+
+  // Step 4 → Step 5: call backend, cache recs
+  const handleStep4Next = useCallback(async () => {
+    setLoading(true)
+    try {
+      const skills = Array.from(selectedSkills)
+      const data = await api.getSkillRecommendations(skills, 30, 0.5)
+      setCachedRecs(data.recommendations || [])
+      setCachedSeeds(data.seed_courses || [])
+      setExtraSkills(data.extra_skills || [])
+      setStep(4)
+    } catch (err) {
+      console.error('Skill recommendation failed', err)
+      setCachedRecs([])
+      setCachedSeeds([])
+      setExtraSkills([])
+      setStep(4)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedSkills])
+
+  // Step 5 → Dashboard
+  const handleFinish = useCallback(async () => {
+    setLoading(true)
+    try {
+      const finalSkills = Array.from(new Set([...selectedSkills, ...acceptedExtras]))
+      let finalRecs = cachedRecs || []
+
+      let finalSeeds = cachedSeeds || []
+
+      if (acceptedExtras.size > 0) {
+        try {
+          const data = await api.getSkillRecommendations(finalSkills, 30, 0.5)
+          finalRecs = data.recommendations || finalRecs
+          finalSeeds = data.seed_courses || finalSeeds
+        } catch (_) {}
+      }
+
+      // Store recs so dashboard reads them instantly
+      sessionStorage.setItem('pendingRecs', JSON.stringify(finalRecs))
+
+      // Save profile + courses (fire-and-forget)
+      if (session?.user?.apiToken) {
+        api.saveProfile(session.user.apiToken, {
+          education_level: educationLevel,
+          college_year: collegeYear,
+          interest_text: interestText,
+          selected_skills: finalSkills,
+        }).catch(() => {})
+
+        // Save the pure seed courses so the model can re-run from dashboard later, and sidebar shows actual seeds
+        const courseIds = finalSeeds.slice(0, 20)
+        if (courseIds.length > 0) {
+          fetch('http://127.0.0.1:8000/courses/my-courses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.user.apiToken}` },
+            body: JSON.stringify({ selected_courses: courseIds }),
+          }).catch(() => {})
+        }
+      }
+
+      // Use ?onboarded=1 so dashboard skips the redirect-back-to-wizard check
+      router.push('/dashboard?onboarded=1')
+    } catch (err) {
+      console.error('Finish failed', err)
+      router.push('/dashboard?onboarded=1')
+    }
+  }, [selectedSkills, acceptedExtras, cachedRecs, session, educationLevel, collegeYear, interestText, router])
+
+  if (status === 'loading') return <LoadingOverlay message="Loading…" />
+
+  if (step === 0)
+    return <Step1 value={educationLevel} onChange={lvl => { setEducationLevel(lvl); setCollegeYear('') }} onNext={() => setStep(1)} />
+
+  if (step === 1)
+    return <Step2 educationLevel={educationLevel} value={collegeYear} onChange={setCollegeYear} onNext={() => setStep(2)} onBack={() => setStep(0)} />
+
+  if (step === 2)
+    return <Step3 value={interestText} onChange={setInterestText} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+
+  if (step === 3)
+    return <Step4 rankedSkills={rankedSkills} selected={selectedSkills} onToggle={toggleSkill} onNext={handleStep4Next} onBack={() => setStep(2)} loading={loading} />
+
+  if (step === 4)
+    return <Step5 extraSkills={extraSkills} accepted={acceptedExtras} onToggle={toggleExtra} onFinish={handleFinish} onBack={() => setStep(3)} loading={loading} />
+
+  return <LoadingOverlay message="Almost there…" />
 }

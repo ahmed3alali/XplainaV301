@@ -33,7 +33,8 @@ from api_auth import router as auth_router, get_current_user
 
 from schemas import (
     CourseOut, RecommendationOut, ExplanationOut, 
-    LLMExplainRequest, LLMExplainResponse, DynamicRecommendRequest, DynamicExplainRequest
+    LLMExplainRequest, LLMExplainResponse, DynamicRecommendRequest, DynamicExplainRequest,
+    SkillRecommendRequest, SkillRecommendResponse, SaveProfileRequest
 )
 from loader import load_all_data, get_state
 
@@ -359,3 +360,101 @@ def llm_explain(req: LLMExplainRequest):
         return llm_res.to_dict()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM Explanation failed: {str(e)}")
+
+
+# ── Skill-based onboarding ────────────────────────────────────────────────
+
+@app.post("/profile/skills-to-courses", response_model=SkillRecommendResponse)
+def skills_to_courses(req: SkillRecommendRequest):
+    state = get_state()
+    REAL_USER_SENTINEL = -999999
+
+    valid_skills = [s for s in req.selected_skills if s in GENRE_COLS]
+    if not valid_skills:
+        raise HTTPException(status_code=400, detail="No valid skill names provided.")
+
+    valid_skills_set = set(valid_skills)
+    other_genre_cols = [g for g in GENRE_COLS if g not in valid_skills_set]
+
+    # ── INPUT FILTER ────────────────────────────────────────────────────────────
+    # We must guarantee that EVERY selected skill contributes seeds to the model.
+    # For each skill, we find the courses that have that skill. To minimize contamination,
+    # we pick the courses with the fewest number of unselected skills (ideally 0).
+    course_ids_set = set()
+    for skill in valid_skills:
+        skill_mask = state.courses_df[skill] == 1
+        if not skill_mask.any():
+            continue
+            
+        skill_courses = state.courses_df[skill_mask]
+        
+        # Count how many unselected skills each course has
+        if other_genre_cols:
+            other_counts = skill_courses[other_genre_cols].sum(axis=1)
+            min_other = other_counts.min()
+            # Keep only the courses for this skill that have the least contamination
+            best_courses = skill_courses[other_counts == min_other]
+        else:
+            best_courses = skill_courses
+            
+        course_ids_set.update(best_courses["COURSE_ID"].astype(str).tolist())
+        
+    course_ids = list(course_ids_set)
+
+    if not course_ids:
+        raise HTTPException(status_code=404, detail="No courses found for the selected skills.")
+
+    try:
+        recs = hybrid_scores_for_user(
+            user=REAL_USER_SENTINEL,
+            train_df=state.train_df,
+            cf_predictions=state.cf_predictions,
+            sim_df=state.sim_df,
+            alpha=req.alpha,
+            top_n=req.top_n * 5,   # larger pool so the output filter has enough to choose from
+            normalize=True,
+            user_items_override=course_ids,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    # ── OUTPUT FILTER ───────────────────────────────────────────────────────────
+    # Only return courses that share ≥1 genre with the selected skills.
+    courses_idx = state.courses_df.set_index("COURSE_ID")
+    all_out: list[RecommendationOut] = []
+    rec_genres: set[str] = set()
+
+    for course_id, score in recs.items():
+        if course_id in courses_idx.index:
+            row = courses_idx.loc[course_id]
+            title = str(row["TITLE"])
+            genres = [g for g in GENRE_COLS if row.get(g, 0) == 1]
+        else:
+            title = course_id
+            genres = []
+        all_out.append(RecommendationOut(course_id=course_id, title=title, hybrid_score=float(score), genres=genres))
+        rec_genres.update(genres)
+
+    filtered = [r for r in all_out if any(g in valid_skills_set for g in r.genres)]
+    out = filtered[:req.top_n] if filtered else all_out[:req.top_n]
+
+    extra_skills = sorted(rec_genres - valid_skills_set)
+    return SkillRecommendResponse(recommendations=out, extra_skills=extra_skills, seed_courses=course_ids)
+
+
+@app.post("/profile/save-profile")
+def save_profile(req: SaveProfileRequest, user: dict = Depends(get_current_user)):
+    user_id = user.get("user_id")
+    if user.get("user_type") == "dataset_user":
+        return {"status": "ok", "message": "Dataset users are read-only"}
+    try:
+        url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
+        key = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
+        sb = create_client(url, key)
+        update_payload = {k: v for k, v in req.model_dump().items() if v is not None}
+        if not update_payload:
+            return {"status": "ok", "message": "Nothing to update"}
+        sb.table("users").update(update_payload).eq("id", user_id).execute()
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save profile: {str(e)}")

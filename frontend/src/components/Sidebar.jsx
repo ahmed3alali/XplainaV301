@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { BookMarked, History, Loader2, Library } from 'lucide-react'
+import { BookMarked, History, Loader2, Library, X } from 'lucide-react'
 import { api } from '@/services/api'
+import { createPortal } from 'react-dom'
 
 export default function Sidebar() {
   const { data: session } = useSession()
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedCourse, setSelectedCourse] = useState(null)
 
   useEffect(() => {
     async function loadCourses() {
@@ -54,7 +56,7 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto p-5">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 flex items-center gap-1.5">
-            <History className="h-3 w-3" /> Taken Courses
+            <History className="h-3 w-3" />  We think you have already taken
           </h3>
           <span className="rounded-md border border-border-subtle bg-surface px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
             {loading ? '...' : courses.length}
@@ -75,7 +77,11 @@ export default function Sidebar() {
         ) : (
           <div className="space-y-1.5">
             {courses.map((course, idx) => (
-              <div key={idx} className="group relative rounded-md border border-transparent bg-transparent px-3 py-2.5 transition-all hover:bg-surface hover:border-border-subtle">
+              <button 
+                key={idx} 
+                onClick={() => setSelectedCourse(course)}
+                className="w-full text-left group relative rounded-md border border-transparent bg-transparent px-3 py-2.5 transition-all hover:bg-surface hover:border-border-subtle cursor-pointer"
+              >
                 <h4 className="line-clamp-2 text-[13px] font-medium text-foreground/80 group-hover:text-foreground leading-snug">
                   {course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`}
                 </h4>
@@ -86,11 +92,72 @@ export default function Sidebar() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {selectedCourse && (
+        <SeedCourseModal 
+          course={selectedCourse} 
+          onClose={() => setSelectedCourse(null)} 
+        />
+      )}
     </aside>
+  )
+}
+
+function SeedCourseModal({ course, onClose }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border border-border-subtle bg-background shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border-subtle bg-surface px-6 py-4">
+          <h2 className="text-[17px] font-medium text-foreground tracking-tight break-words pr-4">
+            {course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`}
+          </h2>
+          <button onClick={onClose} className="rounded-md p-1.5 text-foreground/40 hover:bg-surface-raised hover:text-foreground transition-colors border border-transparent hover:border-border-subtle">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="p-6">
+          <div className="mb-6 rounded-md border border-accent/20 bg-accent/5 p-4">
+            <div className="mb-2 flex items-center gap-1.5 text-[13px] font-semibold text-accent">
+              <BookMarked className="h-4 w-4" />
+              Why is this course here?
+            </div>
+            <p className="text-[13px] leading-relaxed text-foreground/70">
+              This is a <strong className="text-foreground font-medium">Seed Course</strong>. 
+              We automatically selected it because it perfectly matches the skills you chose during onboarding. 
+              It acts as a foundation to trigger the AI model and generate your personalized recommendations.
+            </p>
+          </div>
+          
+          <div>
+            <h3 className="mb-3 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course Genres</h3>
+            <div className="flex flex-wrap gap-2">
+              {(course.genres || []).map((g) => (
+                <span key={g} className="rounded border border-border-subtle bg-surface-raised px-2 py-1 text-[11px] font-medium text-foreground/80">
+                  {g}
+                </span>
+              ))}
+              {(!course.genres || course.genres.length === 0) && (
+                <span className="text-[12px] text-foreground/40 italic">No genres available</span>
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-6">
+            <h3 className="mb-2 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course ID</h3>
+            <p className="text-[13px] font-mono text-foreground/60">{course.course_id || course.COURSE_ID}</p>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   )
 }

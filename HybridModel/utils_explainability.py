@@ -87,7 +87,7 @@ def build_surrogate_model(X: pd.DataFrame, y: pd.Series) -> RandomForestRegresso
     return model
 
 def explain_with_shap(model, X_train: pd.DataFrame, x_instance: pd.Series) -> Dict[str, float]:
-    """Computes SHAP values using TreeExplainer on the surrogate model."""
+    """Computes SHAP values using TreeExplainer on the surrogate model. "How much did each genre contribute to this course's score?"""
     explainer = shap.TreeExplainer(model, X_train)
     # Filter shap warnings regarding additivity if they pop up
     with warnings.catch_warnings():

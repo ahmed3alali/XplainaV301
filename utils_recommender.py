@@ -50,6 +50,8 @@ def build_course_text(df: pd.DataFrame) -> pd.Series:
         return f"{title} {tags}".strip()
     return df.apply(_row_to_text, axis=1)
 
+
+## We create the content similaty 
 def create_content_similarity(courses_df: pd.DataFrame):
     courses_df = add_num_genres(courses_df.copy())
     docs = build_course_text(courses_df)
@@ -71,18 +73,22 @@ def create_content_similarity(courses_df: pd.DataFrame):
     }
 
 def train_test_split_by_user(ratings_df: pd.DataFrame, min_user_ratings: int = 5, test_size: float = 0.2, seed: int = 42):
+    # Split the ratings into training and testing sets, with each user having at least min_user_ratings ratings.
+    # We define at least a number of min ratings or else it will be appendeed as a whole into the training array.
+
+
     ratings_df = ratings_df.copy()
     train_parts, test_parts = [], []
     for user, grp in ratings_df.groupby('user'):
         if len(grp) < min_user_ratings:
             train_parts.append(grp)
             continue
-        n_test = max(1, int(round(len(grp) * test_size)))
+        n_test = max(1, int(round(len(grp) * test_size))) ## here we are taking the percentage of testing amount from the decided "grp"
         test_idx = grp.sample(n=n_test, random_state=seed).index
-        train_parts.append(grp.drop(index=test_idx))
-        test_parts.append(grp.loc[test_idx])
-    train_df = pd.concat(train_parts, ignore_index=True)
-    test_df = pd.concat(test_parts, ignore_index=True) if test_parts else pd.DataFrame(columns=ratings_df.columns)
+        train_parts.append(grp.drop(index=test_idx)) # to know what is your train part .. drop the test 
+        test_parts.append(grp.loc[test_idx]) 
+    train_df = pd.concat(train_parts, ignore_index=True) 
+    test_df = pd.concat(test_parts, ignore_index=True) if test_parts else pd.DataFrame(columns=ratings_df.columns) 
     return train_df, test_df
 
 def rmse(y_true, y_pred):
@@ -156,20 +162,27 @@ def build_user_item_matrix(ratings_df: pd.DataFrame):
 def user_knn_predictions(train_utility: pd.DataFrame, k: int = 20):
     users = train_utility.index.tolist()
     items = train_utility.columns.tolist()
-    mat = train_utility.fillna(0).values.astype(np.float32)
+    mat = train_utility.fillna(0).values.astype(np.float32) # Converting the utility matrix to an array . matrix
 
+# Building our KNN model. 
     knn = NearestNeighbors(n_neighbors=min(k + 1, len(users)), metric='cosine', algorithm='brute', n_jobs=-1)
-    knn.fit(mat)
-    distances, indices = knn.kneighbors(mat)
+    knn.fit(mat) # training the model on the matrix we got 
+    distances, indices = knn.kneighbors(mat) ## for each user we got the nearest neighbors and the distance between them 
 
+
+    # we drop the first column because it is the user itself 
     neighbor_idx = indices[:, 1:]
-    neighbor_sims = 1 - distances[:, 1:]
-    neigh_ratings = mat[neighbor_idx]
-    rated_mask = neigh_ratings > 0
+    neighbor_sims = 1 - distances[:, 1:] ## flips cosine distance into consine similarty (0 = opposite , 1 = identical)
+    neigh_ratings = mat[neighbor_idx] ## we get his negibours ratings ... 
+    rated_mask = neigh_ratings > 0 ## of course they should be grater than zero 
 
-    weighted = (neigh_ratings * neighbor_sims[:, :, None] * rated_mask).sum(axis=1)
-    weights = (neighbor_sims[:, :, None] * rated_mask).sum(axis=1)
-    preds = np.divide(weighted, weights, out=np.zeros_like(weighted), where=weights != 0)
+
+    weighted = (neigh_ratings * neighbor_sims[:, :, None] * rated_mask).sum(axis=1) # sum of weighted ratings of neighbors 
+    weights = (neighbor_sims[:, :, None] * rated_mask).sum(axis=1) # sum of similarities of the neighbors 
+    preds = np.divide(weighted, weights, out=np.zeros_like(weighted), where=weights != 0) # final prediction 
+
+
+    # converting back to a dictionary 
 
     return {u: pd.Series(preds[i], index=items) for i, u in enumerate(users)}
 

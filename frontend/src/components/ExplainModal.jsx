@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/services/api'
 import { X, Loader2, Sparkles, AlertCircle } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 export default function ExplainModal({ courseId, userId, userType, takenCourses, onClose }) {
@@ -11,7 +12,10 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('shap')
 
+  const [mounted, setMounted] = useState(false)
+
   useEffect(() => {
+    setMounted(true)
     const fetchExplain = async () => {
       try {
         if (userType === "dataset_user") {
@@ -31,24 +35,28 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
     fetchExplain()
   }, [courseId, userId, userType, takenCourses])
 
+  if (!mounted) return null
+
   if (loading) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    return createPortal(
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
-      </div>
+      </div>,
+      document.body
     )
   }
 
   if (error) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    return createPortal(
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div className="w-full max-w-md rounded-2xl bg-slate-900 p-6 text-center shadow-2xl">
           <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-500" />
           <h2 className="mb-2 text-xl font-semibold text-white">Analysis Failed</h2>
           <p className="mb-6 text-slate-400">{error}</p>
           <button onClick={onClose} className="rounded-lg bg-indigo-600 px-6 py-2 font-medium text-white hover:bg-indigo-500">Close</button>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
@@ -64,8 +72,8 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
   const limeData = formatData(data?.lime_values)
   const displayData = activeTab === 'shap' ? shapData : limeData
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-border-subtle bg-background shadow-2xl">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface px-6 py-4">
           <div className="pr-4">
@@ -137,6 +145,7 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

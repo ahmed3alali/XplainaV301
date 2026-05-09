@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field
 
 class CourseOut(BaseModel):
@@ -48,3 +48,22 @@ class LLMExplainResponse(BaseModel):
     prompt_used: str
     llm_response: str
     provider: str
+
+
+# ── Skill-based onboarding ─────────────────────────────────────────────────────
+
+class SkillRecommendRequest(BaseModel):
+    selected_skills: List[str]
+    top_n: int = 10
+    alpha: float = 0.5
+
+class SkillRecommendResponse(BaseModel):
+    recommendations: List[RecommendationOut]
+    extra_skills: List[str]  # genres in recs not originally selected
+    seed_courses: List[str] = [] # The pure courses selected to trigger the model
+
+class SaveProfileRequest(BaseModel):
+    education_level: Optional[str] = None   # undergraduate | graduate | phd
+    college_year: Optional[str] = None      # e.g. "2nd", "Year 1"
+    interest_text: Optional[str] = None
+    selected_skills: Optional[List[str]] = None
