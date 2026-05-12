@@ -29,6 +29,49 @@ function DashboardInner() {
   
   const [selectedCourse, setSelectedCourse] = useState(null)
 
+  const fetchData = async () => {
+    try {
+      // ── Check for recs pre-computed by the onboarding wizard ────────────
+      const pendingRecsRaw = sessionStorage.getItem('pendingRecs')
+      const pendingSkillsRaw = sessionStorage.getItem('pendingSkills')
+
+      if (pendingRecsRaw && session?.user?.userType === 'real_user') {
+        // Use wizard's pre-computed recommendations immediately
+        const recs = JSON.parse(pendingRecsRaw)
+        sessionStorage.removeItem('pendingRecs')
+        sessionStorage.removeItem('pendingSkills')
+        setRecommendations(recs)
+        setLoading(false)
+        return
+      }
+
+      // ── Normal fetch path ────────────────────────────────────────────────
+      let coursesData = []
+      if (session?.user?.apiToken) {
+        coursesData = await api.getMyCourses(session.user.apiToken)
+        setTakenCourses(coursesData)
+
+        if (coursesData.length === 0 && session.user.userType === 'real_user' && !justOnboarded) {
+          router.push('/select-courses')
+          return
+        }
+      }
+
+      if (session?.user?.userType === 'dataset_user') {
+        const data = await api.getRecommendations(session.user.id, 10, 0.5)
+        setRecommendations(data)
+      } else {
+        const selectedCourses = coursesData.map(c => c.COURSE_ID || c.course_id)
+        const data = await api.getDynamicRecommendations(selectedCourses, 10, 0.5)
+        setRecommendations(data)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
@@ -36,50 +79,12 @@ function DashboardInner() {
     }
     if (status !== 'authenticated') return
 
-    const fetchData = async () => {
-      try {
-        // ── Check for recs pre-computed by the onboarding wizard ────────────
-        const pendingRecsRaw = sessionStorage.getItem('pendingRecs')
-        const pendingSkillsRaw = sessionStorage.getItem('pendingSkills')
-
-        if (pendingRecsRaw && session.user.userType === 'real_user') {
-          // Use wizard's pre-computed recommendations immediately
-          const recs = JSON.parse(pendingRecsRaw)
-          sessionStorage.removeItem('pendingRecs')
-          sessionStorage.removeItem('pendingSkills')
-          setRecommendations(recs)
-          setLoading(false)
-          return
-        }
-
-        // ── Normal fetch path ────────────────────────────────────────────────
-        let coursesData = []
-        if (session.user.apiToken) {
-          coursesData = await api.getMyCourses(session.user.apiToken)
-          setTakenCourses(coursesData)
-
-          if (coursesData.length === 0 && session.user.userType === 'real_user' && !justOnboarded) {
-            router.push('/select-courses')
-            return
-          }
-        }
-
-        if (session.user.userType === 'dataset_user') {
-          const data = await api.getRecommendations(session.user.id, 10, 0.5)
-          setRecommendations(data)
-        } else {
-          const selectedCourses = coursesData.map(c => c.COURSE_ID)
-          const data = await api.getDynamicRecommendations(selectedCourses, 10, 0.5)
-          setRecommendations(data)
-        }
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchData()
+
+    // Listen for events from the Sidebar (Adding/Removing courses)
+    const handleRefresh = () => fetchData()
+    window.addEventListener('refresh-recommendations', handleRefresh)
+    return () => window.removeEventListener('refresh-recommendations', handleRefresh)
   }, [status, session, router])
 
   if (status === 'loading' || loading) {
@@ -113,6 +118,18 @@ function DashboardInner() {
               Retake Survey
             </button>
           )}
+          <button
+            onClick={() => router.push('/mentor')}
+            className="flex items-center gap-2 rounded-md border border-violet-500/20 bg-violet-500/10 px-3 py-1.5 text-[13px] font-medium text-violet-300 hover:bg-violet-500/20 transition-colors"
+          >
+            🤖 Talk to Ahmed
+          </button>
+          <button
+            onClick={() => router.push('/?home=1')}
+            className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground/70 hover:bg-surface-raised hover:text-foreground transition-colors"
+          >
+            🏠 Home
+          </button>
           <button
             onClick={() => signOut()}
             className="flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-surface-raised transition-colors"

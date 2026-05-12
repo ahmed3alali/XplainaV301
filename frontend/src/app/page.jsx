@@ -1,8 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ArrowRight, BrainCircuit, Terminal, 
@@ -24,16 +24,26 @@ const stagger = {
 }
 
 export default function LandingPage() {
+  return (
+    <Suspense fallback={null}>
+      <LandingPageInner />
+    </Suspense>
+  )
+}
+
+function LandingPageInner() {
   const { status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const viewHome = searchParams.get('home') === '1'
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && !viewHome) {
       router.push('/dashboard')
     }
-  }, [status, router])
+  }, [status, router, viewHome])
 
-  if (status === 'authenticated') return null
+  if (status === 'authenticated' && !viewHome) return null
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/30 selection:text-white font-sans antialiased overflow-hidden">
@@ -57,10 +67,10 @@ export default function LandingPage() {
             <a href="#features" className="text-[13px] font-medium text-[#888] hover:text-white transition-colors">Infrastructure</a>
             <a href="#team" className="text-[13px] font-medium text-[#888] hover:text-white transition-colors">Core Team</a>
             <button 
-              onClick={() => router.push('/login')}
+              onClick={() => router.push(status === 'authenticated' ? '/dashboard' : '/login')}
               className="text-[13px] font-medium text-white bg-white/10 hover:bg-white/15 border border-white/[0.08] px-4 py-1.5 rounded-full transition-all"
             >
-              Sign In
+              {status === 'authenticated' ? 'Dashboard' : 'Sign In'}
             </button>
           </div>
         </div>
@@ -95,10 +105,10 @@ export default function LandingPage() {
             
             <motion.div variants={fadeUp} className="mt-10 flex flex-col sm:flex-row items-center gap-4">
               <button 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push(status === 'authenticated' ? '/dashboard' : '/login')}
                 className="group flex items-center gap-2 h-12 px-6 rounded-full bg-white text-black text-[15px] font-medium hover:bg-[#eaeaea] transition-colors"
               >
-                Start Building
+                {status === 'authenticated' ? 'Go to Dashboard' : 'Start Building'}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
               <a 

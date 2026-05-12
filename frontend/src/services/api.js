@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
 
 export const api = {
   async getCourses(limit = 50) {
@@ -41,6 +41,11 @@ export const api = {
     return res.data;
   },
 
+  async getLlmDynamicExplanation(selectedCourses, courseId, alpha = 0.5) {
+    const res = await axios.post(`${API_BASE}/llm-explain/dynamic`, { selected_courses: selectedCourses, course_id: courseId, alpha });
+    return res.data; // { course_id, title, llm_explanation }
+  },
+
   /**
    * Skill-based onboarding: maps selected skill tags to courses internally,
    * runs the hybrid model, and returns recommendations + extra discovered skills.
@@ -60,6 +65,15 @@ export const api = {
    */
   async saveProfile(token, profileData) {
     const res = await axios.post(`${API_BASE}/profile/save-profile`, profileData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  async saveMyCourses(token, courseIds) {
+    const res = await axios.post(`${API_BASE}/courses/my-courses`, {
+      selected_courses: courseIds
+    }, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;

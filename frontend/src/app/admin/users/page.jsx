@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { adminUsers } from '@/services/adminApi'
 import {
   Search, Download, Loader2, ChevronLeft, ChevronRight,
-  Trash2, User, BookOpen, Calendar, X, CheckCircle, XCircle, AlertTriangle,
+  Trash2, User, BookOpen, Calendar, X, CheckCircle, XCircle, AlertTriangle, Key,
 } from 'lucide-react'
 
 // ── User Detail Slide-over ────────────────────────────────────────────────────

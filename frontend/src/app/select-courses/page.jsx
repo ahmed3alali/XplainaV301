@@ -189,7 +189,7 @@ function Step3({ value, onChange, onNext, onBack }) {
 // ── Step 4 ─────────────────────────────────────────────────────────────────────
 function Step4({ rankedSkills, selected, onToggle, onNext, onBack, loading }) {
   const count = selected.size
-  const canContinue = count >= 2 && count <= 6
+  const canContinue = count >= 1 && count <= 6
 
   // Split into suggested (score > 0) and rest
   const suggested = rankedSkills.filter(s => s.score > 0)

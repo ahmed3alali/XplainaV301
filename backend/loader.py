@@ -18,9 +18,18 @@ def load_all_data():
     """Loads CSVs and precomputed pickles into memory."""
     print("Loading data into memory...")
     
-    root_dir = Path(__file__).parent.parent.resolve()
+    # Try to find the root directory (handles both local dev and container deployment)
+    current_dir = Path(__file__).parent.resolve()
+    
+    # 1. Try parent directory (local structure)
+    root_dir = current_dir.parent
     processed_dir = root_dir / "data" / "processed"
     models_dir = root_dir / "models"
+    
+    # 2. Fallback to local (if only backend folder was deployed)
+    if not models_dir.exists():
+        processed_dir = current_dir / "data" / "processed"
+        models_dir = current_dir / "models"
     
     # 1. Load CSVs
     try:
@@ -32,24 +41,38 @@ def load_all_data():
         
     # 2. Load CF Model Dict (Default: User-KNN)
     try:
-        user_knn_path = models_dir / "06_pred_user_knn.pkl"
-        if user_knn_path.exists():
-            with open(user_knn_path, "rb") as f:
+        import gzip
+        user_knn_path_gz = models_dir / "06_pred_user_knn.gz"
+        user_knn_path_pkl = models_dir / "06_pred_user_knn.pkl"
+        
+        if user_knn_path_gz.exists():
+            with gzip.open(user_knn_path_gz, "rb") as f:
                 state.cf_predictions = pickle.load(f)
-            print(f"Loaded User-KNN predictions for {len(state.cf_predictions)} users.")
+            print(f"Loaded User-KNN predictions (GZ) for {len(state.cf_predictions)} users.")
+        elif user_knn_path_pkl.exists():
+            with open(user_knn_path_pkl, "rb") as f:
+                state.cf_predictions = pickle.load(f)
+            print(f"Loaded User-KNN predictions (PKL) for {len(state.cf_predictions)} users.")
         else:
-            print("Warning: 06_pred_user_knn.pkl not found.")
+            print("Warning: User-KNN model not found (.gz or .pkl).")
     except Exception as e:
         print(f"Warning: Failed to load CF predictions: {e}")
 
     # 3. Load Content Similarity Matrix
     try:
-        sim_path = models_dir / "tfidf_similarity.pkl"
-        if sim_path.exists():
-            state.sim_df = pd.read_pickle(sim_path)
-            print(f"Loaded TF-IDF Similarity Matrix: {state.sim_df.shape}")
+        sim_path_gz = models_dir / "tfidf_similarity.gz"
+        sim_path_pkl = models_dir / "tfidf_similarity.pkl"
+        
+        if sim_path_gz.exists():
+            with gzip.open(sim_path_gz, "rb") as f:
+                state.sim_df = pickle.load(f)
+            print(f"Loaded TF-IDF Similarity Matrix (GZ): {state.sim_df.shape}")
+        elif sim_path_pkl.exists():
+            with open(sim_path_pkl, "rb") as f:
+                state.sim_df = pd.read_pickle(f)
+            print(f"Loaded TF-IDF Similarity Matrix (PKL): {state.sim_df.shape}")
         else:
-            print("Warning: tfidf_similarity.pkl not found.")
+            print("Warning: tfidf_similarity not found (.gz or .pkl).")
     except Exception as e:
         print(f"Warning: Failed to load similarity matrix: {e}")
         

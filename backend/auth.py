@@ -8,7 +8,7 @@ from google.auth.transport import requests
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "xplaina_super_secret_key_v3")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30 # 30 days
 
 import bcrypt
 

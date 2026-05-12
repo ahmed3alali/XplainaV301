@@ -65,25 +65,44 @@ def load_hybrid_data(data_raw: Path, data_processed: Path):
 def load_cf_models(models_dir: Path):
     """
     Load pre-trained CF prediction dicts saved by notebook 06.
+    Checks for .gz (compressed) first, then .pkl.
 
     Returns (pred_user_knn, pred_item_knn).
     If the pickle files do not exist, returns (None, None) and prints a warning.
     """
-    u_path = models_dir / "06_pred_user_knn.pkl"
-    i_path = models_dir / "06_pred_item_knn.pkl"
+    import gzip
+    
+    u_path_gz = models_dir / "06_pred_user_knn.gz"
+    u_path_pkl = models_dir / "06_pred_user_knn.pkl"
+    i_path_gz = models_dir / "06_pred_item_knn.gz"
+    i_path_pkl = models_dir / "06_pred_item_knn.pkl"
 
-    if not u_path.exists() or not i_path.exists():
+    pred_user_knn = None
+    pred_item_knn = None
+
+    # Load User-KNN
+    if u_path_gz.exists():
+        with gzip.open(u_path_gz, "rb") as f:
+            pred_user_knn = pickle.load(f)
+    elif u_path_pkl.exists():
+        with open(u_path_pkl, "rb") as f:
+            pred_user_knn = pickle.load(f)
+
+    # Load Item-KNN
+    if i_path_gz.exists():
+        with gzip.open(i_path_gz, "rb") as f:
+            pred_item_knn = pickle.load(f)
+    elif i_path_pkl.exists():
+        with open(i_path_pkl, "rb") as f:
+            pred_item_knn = pickle.load(f)
+
+    if pred_user_knn is None and pred_item_knn is None:
         print(
-            "[utils_hybrid] WARNING: CF model pickles not found in "
-            f"{models_dir}.\n"
-            "  Run notebook 06 first, or train CF models inline (see build_cf_predictions)."
+            "[utils_hybrid] WARNING: CF model files (.gz or .pkl) not found in "
+            f"{models_dir}."
         )
         return None, None
 
-    with open(u_path, "rb") as f:
-        pred_user_knn = pickle.load(f)
-    with open(i_path, "rb") as f:
-        pred_item_knn = pickle.load(f)
     print(f"[utils_hybrid] Loaded CF models from {models_dir}")
     return pred_user_knn, pred_item_knn
 

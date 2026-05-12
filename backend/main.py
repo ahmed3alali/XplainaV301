@@ -31,6 +31,7 @@ if env_path.exists():
 
 from api_auth import router as auth_router, get_current_user
 from api_admin import router as admin_router
+from mentor_chat import router as mentor_router
 
 from schemas import (
     CourseOut, RecommendationOut, ExplanationOut, 
@@ -52,7 +53,14 @@ except ImportError:
         _normalize_cf_series, _normalize_series, GENRE_COLS
     )
     from utils_explainability import explain_recommendation, build_surrogate_model, explain_with_shap, explain_with_lime, ExplanationResult
-    from utils_llm import get_llm_explanation
+    # get_llm_explanation may not exist in the old utils_llm; define a stub if missing
+    try:
+        from utils_llm import get_llm_explanation
+    except ImportError:
+        def get_llm_explanation(*args, **kwargs):
+            raise NotImplementedError("get_llm_explanation not available")
+
+from utils_llm import get_dynamic_llm_explanation
 
 
 @asynccontextmanager
@@ -67,11 +75,13 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
+    "https://claripath.vercel.app", # Add your likely Vercel domain
+    "https://xplaina.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"], # For production, you can specify exact domains, but "*" is easiest for now
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,6 +105,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(mentor_router)
 
 
 @app.get("/health")
@@ -363,8 +374,73 @@ def llm_explain(req: LLMExplainRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM Explanation failed: {str(e)}")
 
+@app.post("/llm-explain/dynamic")
+def llm_explain_dynamic(req: DynamicExplainRequest):
+    """
+    LLM-powered plain-English explanation for a real (cold-start) user.
+    Runs the full SHAP+LIME dynamic explain, then asks OpenRouter to translate
+    the technical output into a friendly student-readable paragraph.
+    Uses model: openai/gpt-oss-120b (free) via OpenRouter.
+    """
+    state = get_state()
+    try:
+        all_items = state.sim_df.columns.tolist()
 
-# ── Skill-based onboarding ────────────────────────────────────────────────
+        user_items = [i for i in req.selected_courses if i in state.sim_df.index]
+        cf_series = build_dynamic_cf_series(
+            selected_items=user_items,
+            cf_predictions=state.cf_predictions,
+            train_df=state.train_df,
+            all_items=all_items,
+        )
+
+        if user_items:
+            content_series = state.sim_df.loc[user_items].mean(axis=0).reindex(all_items).fillna(0.0)
+        else:
+            content_series = pd.Series(0.0, index=all_items)
+
+        cf_norm = _normalize_cf_series(cf_series)
+        content_norm = _normalize_series(content_series)
+        y = req.alpha * cf_norm + (1 - req.alpha) * content_norm
+
+        X = state.courses_df.set_index('COURSE_ID')[GENRE_COLS].reindex(all_items).fillna(0)
+        model = build_surrogate_model(X, y)
+        x_instance = X.loc[req.course_id]
+
+        shap_vals = explain_with_shap(model, X, x_instance)
+        lime_vals = explain_with_lime(model, X, x_instance)
+
+        course_genres = state.courses_df.loc[state.courses_df['COURSE_ID'] == req.course_id, GENRE_COLS]
+        matched = [g for g in GENRE_COLS if course_genres.iloc[0][g] == 1] if len(course_genres) > 0 else []
+
+        similar_titles = []
+        if user_items and req.course_id in state.sim_df.columns:
+            sims = state.sim_df.loc[user_items, req.course_id].sort_values(ascending=False).head(3)
+            titles_df = state.courses_df.set_index('COURSE_ID')['TITLE']
+            similar_titles = [titles_df.get(sid, sid) for sid in sims.index]
+
+        title = (
+            state.courses_df.loc[state.courses_df['COURSE_ID'] == req.course_id, 'TITLE'].iloc[0]
+            if req.course_id in state.courses_df['COURSE_ID'].values
+            else req.course_id
+        )
+
+        llm_text = get_dynamic_llm_explanation(
+            course_title=str(title),
+            hybrid_score=float(y.loc[req.course_id]),
+            cf_score=float(cf_norm.loc[req.course_id]),
+            content_score=float(content_norm.loc[req.course_id]),
+            shap_values=shap_vals,
+            lime_values=lime_vals,
+            top_genres=matched,
+            similar_courses=similar_titles,
+        )
+
+        return {"course_id": req.course_id, "title": str(title), "llm_explanation": llm_text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM Dynamic Explanation failed: {str(e)}")
+
+
 
 @app.post("/profile/skills-to-courses", response_model=SkillRecommendResponse)
 def skills_to_courses(req: SkillRecommendRequest):
