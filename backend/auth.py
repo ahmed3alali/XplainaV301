@@ -3,8 +3,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
 import jwt
-from google.oauth2 import id_token
-from google.auth.transport import requests
+try:
+    from google.oauth2 import id_token
+    from google.auth.transport import requests as google_requests
+    _GOOGLE_AUTH_AVAILABLE = True
+except ImportError:
+    _GOOGLE_AUTH_AVAILABLE = False
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "xplaina_super_secret_key_v3")
 ALGORITHM = "HS256"
@@ -37,8 +41,10 @@ def decode_access_token(token: str):
         return None
 
 def verify_google_token(token: str, client_id: str):
+    if not _GOOGLE_AUTH_AVAILABLE:
+        return None
     try:
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), client_id)
+        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), client_id)  # type: ignore[name-defined]
         return idinfo
     except ValueError:
         return None

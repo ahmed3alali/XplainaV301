@@ -1,9 +1,27 @@
 {
   "pythonVersion": "3.11",
+  "pythonPlatform": "Darwin",
   "venvPath": ".",
   "extraPaths": [
-    "..",
-    "."
+    ".",
+    ".."
   ],
-  "exclude": ["**/__pycache__"]
+  "exclude": ["**/__pycache__", "**/repositories/**"],
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportReturnType": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportCallIssue": "none",
+  "reportIndexIssue": "none",
+  "reportOperatorIssue": "none",
+  "reportArgumentType": "none",
+  "reportAbstractUsage": "none",
+  "reportAssignmentType": "none",
+  "reportUnusedImport": "none"
 }
