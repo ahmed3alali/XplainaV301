@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { apiUrl } from "@/lib/env"
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -23,9 +25,10 @@ const handler = NextAuth({
             })
           })
           
-          const data = await res.json()
+          const data = await res.json().catch(() => ({}))
           if (!res.ok) {
-            throw new Error(data.detail || "Invalid login credentials.")
+            const detail = data.detail || "Invalid login credentials."
+            throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail))
           }
           
           // data contains: access_token, user_type, user_id
