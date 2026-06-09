@@ -413,11 +413,7 @@ export default function OnboardingWizard() {
         // Save the pure seed courses so the model can re-run from dashboard later, and sidebar shows actual seeds
         const courseIds = finalSeeds.slice(0, 20)
         if (courseIds.length > 0) {
-          fetch('http://127.0.0.1:8000/courses/my-courses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.user.apiToken}` },
-            body: JSON.stringify({ selected_courses: courseIds }),
-          }).catch(() => {})
+          api.saveMyCourses(session.user.apiToken, courseIds).catch(() => {})
         }
       }
 

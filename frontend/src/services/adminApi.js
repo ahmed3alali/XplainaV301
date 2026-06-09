@@ -4,8 +4,11 @@
  * Never uses the user session token.
  */
 import axios from 'axios';
+import { getApiBase } from '@/lib/env';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+function apiBase() {
+  return getApiBase();
+}
 
 function getAdminToken() {
   if (typeof window === 'undefined') return null;
@@ -21,12 +24,12 @@ function adminHeaders() {
 
 export const adminAuth = {
   async login(email, password) {
-    const res = await axios.post(`${API_BASE}/admin/login`, { email, password });
+    const res = await axios.post(`${apiBase()}/admin/login`, { email, password });
     return res.data; // { access_token, admin_id, email, full_name, role }
   },
 
   async register(invite_token, email, password, full_name) {
-    const res = await axios.post(`${API_BASE}/admin/register`, {
+    const res = await axios.post(`${apiBase()}/admin/register`, {
       invite_token, email, password, full_name,
     });
     return res.data;
@@ -37,7 +40,7 @@ export const adminAuth = {
 
 export const adminStats = {
   async get() {
-    const res = await axios.get(`${API_BASE}/admin/stats`, { headers: adminHeaders() });
+    const res = await axios.get(`${apiBase()}/admin/stats`, { headers: adminHeaders() });
     return res.data;
   },
 };
@@ -49,7 +52,7 @@ export const adminUsers = {
     const params = { page, page_size };
     if (search) params.search = search;
     if (has_courses !== null) params.has_courses = has_courses;
-    const res = await axios.get(`${API_BASE}/admin/users`, {
+    const res = await axios.get(`${apiBase()}/admin/users`, {
       params,
       headers: adminHeaders(),
     });
@@ -57,32 +60,32 @@ export const adminUsers = {
   },
 
   async get(userId) {
-    const res = await axios.get(`${API_BASE}/admin/users/${userId}`, {
+    const res = await axios.get(`${apiBase()}/admin/users/${userId}`, {
       headers: adminHeaders(),
     });
     return res.data;
   },
 
   async update(userId, payload) {
-    const res = await axios.patch(`${API_BASE}/admin/users/${userId}`, payload, {
+    const res = await axios.patch(`${apiBase()}/admin/users/${userId}`, payload, {
       headers: adminHeaders(),
     });
     return res.data;
   },
 
   async delete(userId) {
-    await axios.delete(`${API_BASE}/admin/users/${userId}`, {
+    await axios.delete(`${apiBase()}/admin/users/${userId}`, {
       headers: adminHeaders(),
     });
   },
 
   exportCsvUrl() {
     const token = getAdminToken();
-    return `${API_BASE}/admin/users/export?token=${token}`;
+    return `${apiBase()}/admin/users/export?token=${token}`;
   },
 
   async exportCsv() {
-    const res = await axios.get(`${API_BASE}/admin/users/export`, {
+    const res = await axios.get(`${apiBase()}/admin/users/export`, {
       headers: adminHeaders(),
       responseType: 'blob',
     });
@@ -90,7 +93,7 @@ export const adminUsers = {
   },
 
   async changePassword(userId, newPassword) {
-    await axios.patch(`${API_BASE}/admin/users/${userId}/password`, {
+    await axios.patch(`${apiBase()}/admin/users/${userId}/password`, {
       new_password: newPassword,
     }, {
       headers: adminHeaders(),
@@ -103,39 +106,39 @@ export const adminUsers = {
 
 export const adminAdmins = {
   async list() {
-    const res = await axios.get(`${API_BASE}/admin/admins`, { headers: adminHeaders() });
+    const res = await axios.get(`${apiBase()}/admin/admins`, { headers: adminHeaders() });
     return res.data;
   },
 
   async get(adminId) {
-    const res = await axios.get(`${API_BASE}/admin/admins/${adminId}`, {
+    const res = await axios.get(`${apiBase()}/admin/admins/${adminId}`, {
       headers: adminHeaders(),
     });
     return res.data;
   },
 
   async update(adminId, payload) {
-    const res = await axios.patch(`${API_BASE}/admin/admins/${adminId}`, payload, {
+    const res = await axios.patch(`${apiBase()}/admin/admins/${adminId}`, payload, {
       headers: adminHeaders(),
     });
     return res.data;
   },
 
   async deactivate(adminId) {
-    await axios.delete(`${API_BASE}/admin/admins/${adminId}`, {
+    await axios.delete(`${apiBase()}/admin/admins/${adminId}`, {
       headers: adminHeaders(),
     });
   },
 
   async create(payload) {
-    const res = await axios.post(`${API_BASE}/admin/admins`, payload, {
+    const res = await axios.post(`${apiBase()}/admin/admins`, payload, {
       headers: adminHeaders(),
     });
     return res.data;
   },
 
   async changePassword(adminId, newPassword) {
-    await axios.patch(`${API_BASE}/admin/admins/${adminId}/password`, {
+    await axios.patch(`${apiBase()}/admin/admins/${adminId}/password`, {
       new_password: newPassword,
     }, {
       headers: adminHeaders(),
@@ -148,13 +151,13 @@ export const adminAdmins = {
 
 export const adminInvites = {
   async list() {
-    const res = await axios.get(`${API_BASE}/admin/invites`, { headers: adminHeaders() });
+    const res = await axios.get(`${apiBase()}/admin/invites`, { headers: adminHeaders() });
     return res.data;
   },
 
   async create({ email, role, expires_in_hours }) {
     const res = await axios.post(
-      `${API_BASE}/admin/invites`,
+      `${apiBase()}/admin/invites`,
       { email, role, expires_in_hours },
       { headers: adminHeaders() },
     );
@@ -162,7 +165,7 @@ export const adminInvites = {
   },
 
   async revoke(inviteId) {
-    await axios.delete(`${API_BASE}/admin/invites/${inviteId}`, {
+    await axios.delete(`${apiBase()}/admin/invites/${inviteId}`, {
       headers: adminHeaders(),
     });
   },

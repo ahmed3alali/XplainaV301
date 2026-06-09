@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { apiUrl } from "@/lib/env"
 
 const handler = NextAuth({
   providers: [
@@ -13,7 +14,7 @@ const handler = NextAuth({
         if (!credentials) return null;
         
         try {
-          const res = await fetch("http://127.0.0.1:8000/auth/login", {
+          const res = await fetch(apiUrl("/auth/login"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

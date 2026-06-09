@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, UserPlus, Sparkles } from 'lucide-react'
 import { signIn, useSession } from 'next-auth/react'
+import { api } from '@/services/api'
 
 export default function SignupPage() {
   const { status } = useSession()
@@ -28,18 +29,7 @@ export default function SignupPage() {
     setError('')
     
     try {
-      // Create user via FastAPI
-      const res = await fetch("http://localhost:8000/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      })
-      const data = await res.json()
-      
-      if (!res.ok) {
-        throw new Error(data.detail || "Signup failed")
-      }
-      
+      await api.signup(email, password)
       // Auto-login after successful signup utilizing NextAuth
       const loginRes = await signIn('credentials', {
         identifier: email,
@@ -53,7 +43,7 @@ export default function SignupPage() {
         router.push('/dashboard')
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.response?.data?.detail || err.message)
     } finally {
       setIsLoading(false)
     }

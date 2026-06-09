@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Send, Bot, User, Sparkles, ArrowLeft, GraduationCap } from 'lucide-react'
+import { api } from '@/services/api'
 
 const YEAR_OPTIONS = [
   { id: '1st Year', label: '1st Year', desc: 'Just starting out' },
@@ -43,16 +44,7 @@ export default function MentorPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/mentor/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages,
-          year_of_study: yearOfStudy,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Failed')
+      const data = await api.mentorChat(newMessages, yearOfStudy)
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
     } catch (err) {
       setMessages(prev => [...prev, {
