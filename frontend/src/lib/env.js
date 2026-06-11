@@ -1,8 +1,10 @@
 /**
  * Backend URL config — no hardcoded URLs in source.
  *
- * Browser:  /api/backend/*  (same-origin proxy, see app/api/backend/[...path]/route.js)
- * Server:   API_BASE env var (NextAuth + proxy route)
+ * Browser:  /api/backend/*  (same-origin proxy)
+ * Server:   API_BASE env var (auth routes + proxy)
+ *
+ * No Supabase keys. Auth is JWT in httpOnly cookie via /api/auth/*.
  */
 
 function getBackendUrl() {
@@ -20,7 +22,7 @@ function getBackendUrl() {
   return value;
 }
 
-/** Server-side only — NextAuth + API proxy route. */
+/** Server-side only — auth routes + API proxy. */
 export function getServerApiBase() {
   return getBackendUrl();
 }
@@ -36,20 +38,4 @@ export function getApiBase() {
 export function apiUrl(path) {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   return `${getServerApiBase()}${normalized}`;
-}
-
-export function getSupabaseUrl() {
-  const value = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  if (!value) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL.');
-  }
-  return value;
-}
-
-export function getSupabaseAnonKey() {
-  const value = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-  if (!value) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY.');
-  }
-  return value;
 }

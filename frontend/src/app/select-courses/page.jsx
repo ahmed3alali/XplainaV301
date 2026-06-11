@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/providers/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useCallback } from 'react'
 import { api } from '@/services/api'
@@ -402,18 +402,17 @@ export default function OnboardingWizard() {
       sessionStorage.setItem('pendingRecs', JSON.stringify(finalRecs))
 
       // Save profile + courses (fire-and-forget)
-      if (session?.user?.apiToken) {
-        api.saveProfile(session.user.apiToken, {
+      if (session?.user?.userType === 'real_user') {
+        api.saveProfile({
           education_level: educationLevel,
           college_year: collegeYear,
           interest_text: interestText,
           selected_skills: finalSkills,
         }).catch(() => {})
 
-        // Save the pure seed courses so the model can re-run from dashboard later, and sidebar shows actual seeds
         const courseIds = finalSeeds.slice(0, 20)
         if (courseIds.length > 0) {
-          api.saveMyCourses(session.user.apiToken, courseIds).catch(() => {})
+          api.saveMyCourses(courseIds).catch(() => {})
         }
       }
 

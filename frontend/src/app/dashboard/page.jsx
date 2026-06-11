@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
+import { useSession, signOut } from '@/providers/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import { api } from '@/services/api'
@@ -47,11 +47,11 @@ function DashboardInner() {
 
       // ── Normal fetch path ────────────────────────────────────────────────
       let coursesData = []
-      if (session?.user?.apiToken) {
-        coursesData = await api.getMyCourses(session.user.apiToken)
+      if (session?.user?.userType === 'real_user') {
+        coursesData = await api.getMyCourses()
         setTakenCourses(coursesData)
 
-        if (coursesData.length === 0 && session.user.userType === 'real_user' && !justOnboarded) {
+        if (coursesData.length === 0 && !justOnboarded) {
           router.push('/select-courses')
           return
         }
@@ -122,7 +122,7 @@ function DashboardInner() {
             onClick={() => router.push('/mentor')}
             className="flex items-center gap-2 rounded-md border border-violet-500/20 bg-violet-500/10 px-3 py-1.5 text-[13px] font-medium text-violet-300 hover:bg-violet-500/20 transition-colors"
           >
-            🤖 Talk to Ahmed
+            🤖 Talk to an expert
           </button>
           <button
             onClick={() => router.push('/?home=1')}

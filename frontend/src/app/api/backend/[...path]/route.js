@@ -2,7 +2,9 @@
  * Proxies browser requests to the FastAPI backend.
  * Keeps API_BASE server-only — nothing exposed in client bundle.
  */
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { AUTH_COOKIE } from '@/lib/auth-cookie';
 import { getServerApiBase } from '@/lib/env';
 
 const FORWARD = ['authorization', 'content-type', 'accept'];
@@ -24,6 +26,12 @@ async function proxy(request, context) {
   for (const key of FORWARD) {
     const val = request.headers.get(key);
     if (val) headers.set(key, val);
+  }
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_COOKIE)?.value;
+  if (token && !headers.has('authorization')) {
+    headers.set('authorization', `Bearer ${token}`);
   }
 
   const init = { method: request.method, headers };

@@ -79,7 +79,7 @@ export default function MentorPage() {
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-[0_0_40px_rgba(139,92,246,0.4)]">
               <Bot className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Meet Ahmed</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">One of our team will be talking to you</h1>
             <p className="text-[15px] text-white/50 leading-relaxed">
               Your personal CS & Software Engineering mentor.<br />
               Honest advice, no fluff.

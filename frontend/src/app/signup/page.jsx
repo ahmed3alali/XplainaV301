@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogIn, UserPlus, Sparkles } from 'lucide-react'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn, useSession } from '@/providers/AuthProvider'
 import { api } from '@/services/api'
 
 export default function SignupPage() {
@@ -40,7 +40,7 @@ export default function SignupPage() {
       if (loginRes?.error) {
         setError(loginRes.error)
       } else {
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError(err.response?.data?.detail || err.message)

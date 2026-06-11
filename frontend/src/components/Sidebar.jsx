@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/providers/AuthProvider'
 import { BookMarked, History, Loader2, Library, X, Plus, Trash2, Search } from 'lucide-react'
 import { api } from '@/services/api'
 import { createPortal } from 'react-dom'
@@ -15,10 +15,10 @@ export default function Sidebar() {
   const [actionLoading, setActionLoading] = useState(false)
 
   const loadCourses = async () => {
-    if (!session?.user?.apiToken) return
+    if (session?.user?.userType !== 'real_user') return
     try {
       setLoading(true)
-      const data = await api.getMyCourses(session.user.apiToken)
+      const data = await api.getMyCourses()
       setCourses(data || [])
     } catch (err) {
       console.error("Failed to load user courses:", err)
@@ -41,7 +41,7 @@ export default function Sidebar() {
         .filter(c => (c.COURSE_ID || c.course_id) !== courseId)
         .map(c => c.COURSE_ID || c.course_id)
       
-      await api.saveMyCourses(session.user.apiToken, updatedIds)
+      await api.saveMyCourses(updatedIds)
       await loadCourses()
       
       // Tell the dashboard to refresh recommendations
@@ -65,7 +65,7 @@ export default function Sidebar() {
       }
       
       const updatedIds = [...currentIds, course.COURSE_ID]
-      await api.saveMyCourses(session.user.apiToken, updatedIds)
+      await api.saveMyCourses(updatedIds)
       await loadCourses()
       
       setShowAddModal(false)

@@ -1,6 +1,6 @@
 'use client'
 
-import { signIn, useSession } from 'next-auth/react'
+import { signIn, useSession } from '@/providers/AuthProvider'
 import { useState, useEffect } from 'react'
 import { LogIn, Sparkles } from 'lucide-react'
 import Link from 'next/link'
@@ -37,7 +37,7 @@ export default function LoginPage() {
       setError(res.error)
       setIsLoading(false)
     } else {
-      window.location.href = '/'
+      window.location.href = '/dashboard'
     }
   }
 
