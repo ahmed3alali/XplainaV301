@@ -1,24 +1,24 @@
+import os
+import sys
+from pathlib import Path
+
+# Must run before any `from db import ...` — Docker uses `uvicorn backend.main:app` from /app
+backend_dir = Path(__file__).parent.resolve()
+root_dir = backend_dir.parent.resolve()
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
-import os
 from db import close_pool, executemany, execute, fetchall, init_pool, ping
 from pydantic import BaseModel
 from typing import List, Any
-import sys
 import pandas as pd
-from pathlib import Path
-
-# Add backend and project root to sys.path so we can import universally
-backend_dir = Path(__file__).parent.resolve()
-root_dir = backend_dir.parent.resolve()
-
-if str(backend_dir) not in sys.path:
-    sys.path.insert(0, str(backend_dir))
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
 
 env_path = backend_dir / ".env"
 if env_path.exists():

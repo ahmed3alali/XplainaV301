@@ -11,17 +11,32 @@ export async function POST(request) {
   }
 
   const body = await request.json();
-  const res = await fetch(`${backend}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await fetch(`${backend}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { detail: `Cannot reach backend (${backend}): ${err.message}` },
+      { status: 502 },
+    );
+  }
 
+  const raw = await res.text();
   let data;
   try {
-    data = await res.json();
+    data = raw ? JSON.parse(raw) : {};
   } catch {
-    return NextResponse.json({ detail: 'Invalid response from backend' }, { status: 502 });
+    const snippet = raw.replace(/\s+/g, ' ').slice(0, 120);
+    return NextResponse.json(
+      {
+        detail: `Backend returned non-JSON (HTTP ${res.status}). The API at ${backend} may be down or misconfigured. Response: ${snippet}`,
+      },
+      { status: 502 },
+    );
   }
 
   if (!res.ok) {
