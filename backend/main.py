@@ -80,6 +80,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
+    "https://claripath.dev",
     "https://claripath.vercel.app", # Add your likely Vercel domain
     "https://xplaina.vercel.app",
 ]
