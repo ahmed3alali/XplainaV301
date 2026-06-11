@@ -41,9 +41,12 @@ async function proxy(request, context) {
 
   try {
     const res = await fetch(target, init);
-    const out = new NextResponse(await res.arrayBuffer(), { status: res.status });
+    const status = res.status;
+    // 204/205/304 must not have a body (Fetch API rejects them otherwise)
+    const noBody = status === 204 || status === 205 || status === 304;
+    const out = new NextResponse(noBody ? null : await res.arrayBuffer(), { status });
     const ct = res.headers.get('content-type');
-    if (ct) out.headers.set('content-type', ct);
+    if (ct && !noBody) out.headers.set('content-type', ct);
     return out;
   } catch (err) {
     return NextResponse.json(
