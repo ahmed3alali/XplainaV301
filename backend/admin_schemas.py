@@ -38,8 +38,8 @@ class AdminOut(BaseModel):
     full_name: Optional[str]
     role: str
     is_active: bool
-    created_at: str
-    last_login_at: Optional[str]
+    created_at: datetime
+    last_login_at: Optional[datetime] = None
 
 
 class AdminUpdate(BaseModel):
@@ -74,8 +74,8 @@ class InviteOut(BaseModel):
     email: Optional[str]
     role: str
     used: bool
-    expires_at: str
-    created_at: str
+    expires_at: datetime
+    created_at: datetime
 
 
 # ── User Admin View ───────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ class UserAdminView(BaseModel):
     selected_skills: Optional[List[str]] = None
     is_active: bool = True
     course_count: int = 0
-    created_at: str
+    created_at: datetime
 
 
 class UserAdminUpdate(BaseModel):

@@ -140,7 +140,7 @@ def _enrich_users(users: list) -> List[UserAdminView]:
             selected_skills=_normalize_skills(u.get("selected_skills")),
             is_active=u.get("is_active", True),
             course_count=int(course_count),
-            created_at=u.get("created_at", ""),
+            created_at=u["created_at"],
         ))
     return result
 
