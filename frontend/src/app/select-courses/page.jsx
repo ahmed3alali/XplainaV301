@@ -333,13 +333,15 @@ export default function OnboardingWizard() {
   const [cachedSeeds, setCachedSeeds] = useState([])
   const [loading, setLoading] = useState(false)
 
-  // Auth guard — runs only once when status resolves
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login')
-    if (status === 'authenticated' && session?.user?.userType === 'dataset_user') {
-      router.push('/dashboard')
+    if (status === 'unauthenticated') {
+      router.replace('/login')
+      return
     }
-  }, [status]) // intentionally only [status] to avoid re-running on every session update
+    if (status === 'authenticated' && session?.user?.userType === 'dataset_user') {
+      router.replace('/dashboard')
+    }
+  }, [status, session, router])
 
   const toggleSkill = useCallback((id) => {
     setSelectedSkills(prev => {
@@ -398,33 +400,47 @@ export default function OnboardingWizard() {
         } catch (_) {}
       }
 
-      // Store recs so dashboard reads them instantly
-      sessionStorage.setItem('pendingRecs', JSON.stringify(finalRecs))
+      const courseIds = finalSeeds.slice(0, 20)
 
-      // Save profile + courses (fire-and-forget)
       if (session?.user?.userType === 'real_user') {
-        api.saveProfile({
+        await api.saveProfile({
           education_level: educationLevel,
           college_year: collegeYear,
           interest_text: interestText,
           selected_skills: finalSkills,
-        }).catch(() => {})
+        })
 
-        const courseIds = finalSeeds.slice(0, 20)
         if (courseIds.length > 0) {
-          api.saveMyCourses(courseIds).catch(() => {})
+          await api.saveMyCourses(courseIds)
         }
       }
 
-      // Use ?onboarded=1 so dashboard skips the redirect-back-to-wizard check
+      sessionStorage.setItem('pendingRecs', JSON.stringify(finalRecs))
+      sessionStorage.setItem('pendingCourseIds', JSON.stringify(courseIds))
+
       router.push('/dashboard?onboarded=1')
     } catch (err) {
       console.error('Finish failed', err)
+      sessionStorage.setItem('pendingRecs', JSON.stringify(cachedRecs || []))
       router.push('/dashboard?onboarded=1')
+    } finally {
+      setLoading(false)
     }
-  }, [selectedSkills, acceptedExtras, cachedRecs, session, educationLevel, collegeYear, interestText, router])
+  }, [selectedSkills, acceptedExtras, cachedRecs, cachedSeeds, session, educationLevel, collegeYear, interestText, router])
 
   if (status === 'loading') return <LoadingOverlay message="Loading…" />
+
+  if (status === 'unauthenticated') {
+    return <LoadingOverlay message="Redirecting to sign in…" />
+  }
+
+  if (status !== 'authenticated' || !session?.user) {
+    return <LoadingOverlay message="Loading…" />
+  }
+
+  if (session.user.userType === 'dataset_user') {
+    return <LoadingOverlay message="Redirecting to dashboard…" />
+  }
 
   if (step === 0)
     return <Step1 value={educationLevel} onChange={lvl => { setEducationLevel(lvl); setCollegeYear('') }} onNext={() => setStep(1)} />

@@ -1,14 +1,29 @@
+'use client'
+
+import { useState } from 'react'
+import { ThemeProvider, useTheme } from '@/providers/ThemeProvider'
 import Sidebar from '@/components/Sidebar'
+import { DashboardTopBar } from '@/components/dashboard/DashboardTopBar'
+
+function DashboardShell({ children }) {
+  const { theme, mounted } = useTheme()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  return (
+    <div className="app-shell min-h-dvh" data-theme={mounted ? theme : 'light'}>
+      <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
+      <div className="flex min-h-dvh min-w-0 flex-col lg:pl-[var(--app-sidebar-width)]">
+        <DashboardTopBar onMenuClick={() => setMobileOpen(true)} />
+        {children}
+      </div>
+    </div>
+  )
+}
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-background">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
-      <main className="flex-1 w-full lg:pl-80 transition-all duration-300">
-        {children}
-      </main>
-    </div>
+    <ThemeProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </ThemeProvider>
   )
 }

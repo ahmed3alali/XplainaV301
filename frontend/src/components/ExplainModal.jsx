@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/services/api'
 import { X, Loader2, Sparkles, AlertCircle, Bot, ChevronDown, ChevronUp } from 'lucide-react'
-import { createPortal } from 'react-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { ModalPortal } from '@/components/app/ModalPortal'
 
 export default function ExplainModal({ courseId, userId, userType, takenCourses, onClose }) {
   const [data, setData] = useState(null)
@@ -12,44 +12,37 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('shap')
 
-  // LLM explanation state
   const [llmText, setLlmText] = useState(null)
   const [llmLoading, setLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState(null)
   const [showTechnical, setShowTechnical] = useState(false)
 
-  const [mounted, setMounted] = useState(false)
-
   useEffect(() => {
-    setMounted(true)
     const fetchExplain = async () => {
       try {
         let res
-        if (userType === "dataset_user") {
+        if (userType === 'dataset_user') {
           res = await api.getExplanation(userId, courseId)
         } else {
-          const selectedCourses = takenCourses ? takenCourses.map(c => c.COURSE_ID) : []
+          const selectedCourses = takenCourses ? takenCourses.map((c) => c.COURSE_ID) : []
           res = await api.getDynamicExplanation(selectedCourses, courseId)
         }
         setData(res)
 
-        // LLM explanation — only for real users, and cached in localStorage to conserve tokens
-        if (userType !== "dataset_user") {
+        if (userType !== 'dataset_user') {
           const cacheKey = `llm_explain_${courseId}`
           const cached = localStorage.getItem(cacheKey)
           if (cached) {
-            // Serve from cache instantly — no API call
             setLlmText(cached)
           } else {
             setLlmLoading(true)
             try {
-              const selectedCourses = takenCourses ? takenCourses.map(c => c.COURSE_ID) : []
+              const selectedCourses = takenCourses ? takenCourses.map((c) => c.COURSE_ID) : []
               const llmRes = await api.getLlmDynamicExplanation(selectedCourses, courseId)
               const explanation = llmRes.llm_explanation
               setLlmText(explanation)
-              // Persist to localStorage so re-opening the modal is free
               localStorage.setItem(cacheKey, explanation)
-            } catch (e) {
+            } catch {
               setLlmError('Could not load AI explanation.')
             } finally {
               setLlmLoading(false)
@@ -65,28 +58,31 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
     fetchExplain()
   }, [courseId, userId, userType, takenCourses])
 
-  if (!mounted) return null
-
   if (loading) {
-    return createPortal(
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
-      </div>,
-      document.body
+    return (
+      <ModalPortal onClose={onClose} hostClassName="!w-[min(100%,24rem)]">
+        <div className="app-modal items-center justify-center p-10 text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--landing-accent)]" />
+          <p className="mt-3 text-sm text-[var(--landing-muted)]">Loading explanation…</p>
+        </div>
+      </ModalPortal>
     )
   }
 
   if (error) {
-    return createPortal(
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div className="w-full max-w-md rounded-2xl bg-slate-900 p-6 text-center shadow-2xl">
-          <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-500" />
-          <h2 className="mb-2 text-xl font-semibold text-white">Analysis Failed</h2>
-          <p className="mb-6 text-slate-400">{error}</p>
-          <button onClick={onClose} className="rounded-lg bg-indigo-600 px-6 py-2 font-medium text-white hover:bg-indigo-500">Close</button>
+    return (
+      <ModalPortal onClose={onClose} hostClassName="!w-[min(100%,28rem)]">
+        <div className="app-modal p-6 text-center">
+          <AlertCircle className="mx-auto mb-3 h-9 w-9 text-red-500" />
+          <h2 id="explain-modal-title" className="landing-display text-lg font-bold">
+            Analysis failed
+          </h2>
+          <p className="mt-2 text-sm text-[var(--landing-muted)]">{error}</p>
+          <button type="button" onClick={onClose} className="landing-btn landing-btn-primary mt-6">
+            Close
+          </button>
         </div>
-      </div>,
-      document.body
+      </ModalPortal>
     )
   }
 
@@ -102,116 +98,141 @@ export default function ExplainModal({ courseId, userId, userType, takenCourses,
   const limeData = formatData(data?.lime_values)
   const displayData = activeTab === 'shap' ? shapData : limeData
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-border-subtle bg-background shadow-2xl">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border-subtle bg-surface px-6 py-4">
-          <div className="pr-4">
-            <h2 className="text-[17px] font-medium text-foreground tracking-tight break-words">{data.title}</h2>
-            <div className="mt-1.5 flex items-center gap-3 text-[11px] font-medium text-foreground/50">
-              <span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5 text-accent" /> Match: {(data.hybrid_score * 100).toFixed(1)}%</span>
-              <span>•</span>
-              <span>CF: {(data.cf_score * 100).toFixed(1)}%</span>
-              <span>•</span>
-              <span>Content: {(data.content_score * 100).toFixed(1)}%</span>
+  return (
+    <ModalPortal onClose={onClose} labelledBy="explain-modal-title">
+      <div className="app-modal">
+        <div className="app-modal-header flex items-start justify-between gap-4 px-5 py-4 sm:px-6">
+          <div className="min-w-0 pr-2">
+            <h2 id="explain-modal-title" className="landing-display text-lg font-bold leading-snug sm:text-xl">
+              {data.title}
+            </h2>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-[var(--landing-muted)]">
+              <span className="inline-flex items-center gap-1 text-[var(--landing-accent)]">
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
+                {(data.hybrid_score * 100).toFixed(1)}% match
+              </span>
+              <span>CF {(data.cf_score * 100).toFixed(1)}%</span>
+              <span>Content {(data.content_score * 100).toFixed(1)}%</span>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-foreground/40 hover:bg-surface-raised hover:text-foreground transition-colors border border-transparent hover:border-border-subtle">
-            <X className="h-4 w-4" />
+          <button type="button" onClick={onClose} className="app-icon-btn shrink-0" aria-label="Close">
+            <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 bg-background space-y-6">
-
-          {/* ── AI Explanation (LLM) ─────────────────────────────────────────── */}
-          <div className="rounded-md border border-accent/30 bg-accent/5 p-5">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-accent">
-              <Bot className="h-4 w-4" />
+        <div className="app-modal-body space-y-5 p-5 sm:p-6">
+          <div className="rounded-xl border border-[var(--landing-border)] bg-[var(--landing-accent-soft)] p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--landing-accent)]">
+              <Bot className="h-4 w-4" strokeWidth={1.75} />
               Why was this recommended for you?
             </div>
             {llmLoading ? (
-              <div className="flex items-center gap-2 text-[13px] text-foreground/50">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                AI is generating your personalised explanation…
+              <div className="flex items-center gap-2 text-sm text-[var(--landing-muted)]">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating your personalised explanation…
               </div>
             ) : llmError ? (
-              <p className="text-[13px] text-foreground/50 italic">{llmError}</p>
+              <p className="text-sm text-[var(--landing-muted)]">{llmError}</p>
             ) : llmText ? (
-              <p className="text-[14px] leading-relaxed text-foreground/85">{llmText}</p>
+              <p className="text-sm leading-relaxed text-[var(--landing-fg)] sm:text-[15px]">{llmText}</p>
             ) : (
-              // Fallback for dataset_user who don't use the LLM path
-              <p className="text-[13px] leading-relaxed text-foreground/70">
-                This course was recommended primarily because of your interest in <strong className="text-foreground font-medium">{data.top_genres_matched?.join(', ') || 'related topics'}</strong>.
-                {data.similar_courses?.length > 0 && ` It is closely related to courses like "${data.similar_courses[0]}".`}
+              <p className="text-sm leading-relaxed text-[var(--landing-muted)]">
+                This course was recommended because of your interest in{' '}
+                <strong className="font-medium text-[var(--landing-fg)]">
+                  {data.top_genres_matched?.join(', ') || 'related topics'}
+                </strong>
+                .
+                {data.similar_courses?.length > 0 && ` It relates to "${data.similar_courses[0]}".`}
               </p>
             )}
           </div>
 
-          {/* ── Toggle for technical charts ─────────────────────────────────── */}
           <button
-            onClick={() => setShowTechnical(v => !v)}
-            className="flex w-full items-center justify-between rounded-md border border-border-subtle bg-surface px-4 py-2.5 text-[12px] font-medium text-foreground/60 hover:text-foreground hover:bg-surface-raised transition-colors"
+            type="button"
+            onClick={() => setShowTechnical((v) => !v)}
+            className="app-action-btn w-full justify-between"
           >
-            <span>View technical analysis (SHAP & LIME charts)</span>
-            {showTechnical ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            <span>Technical analysis (SHAP & LIME)</span>
+            {showTechnical ? (
+              <ChevronUp className="h-3.5 w-3.5" strokeWidth={1.75} />
+            ) : (
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} />
+            )}
           </button>
 
-          {/* ── Technical charts (collapsible) ──────────────────────────────── */}
           {showTechnical && (
             <div className="space-y-4">
-              <div className="rounded-md border border-accent/20 bg-accent/5 p-4">
-                <p className="text-[12px] leading-relaxed text-foreground/60">
-                  <strong className="text-foreground/80">SHAP</strong> shows which learning topics had the strongest influence on this recommendation — positive bars push the score up, negative bars push it down.{' '}
-                  <strong className="text-foreground/80">LIME</strong> provides a local approximation of the same decision to cross-validate the result.
+              <p className="text-sm leading-relaxed text-[var(--landing-muted)]">
+                <strong className="font-medium text-[var(--landing-fg)]">SHAP</strong> shows which topics pushed the
+                score up or down.{' '}
+                <strong className="font-medium text-[var(--landing-fg)]">LIME</strong> validates that decision locally.
+              </p>
+
+              <div className="flex w-fit gap-1 rounded-lg border border-[var(--landing-border)] bg-[var(--landing-surface)] p-1">
+                {['shap', 'lime'].map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                      activeTab === tab
+                        ? 'bg-[var(--landing-accent-soft)] text-[var(--landing-fg)]'
+                        : 'text-[var(--landing-muted)] hover:text-[var(--landing-fg)]'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              <div className="rounded-xl border border-[var(--landing-border)] bg-[var(--landing-surface)] p-5">
+                <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--landing-muted)]">
+                  Top drivers · {activeTab}
                 </p>
-              </div>
-
-              <div className="flex gap-1.5 p-1 rounded-md bg-surface border border-border-subtle w-fit">
-                <button
-                  onClick={() => setActiveTab('shap')}
-                  className={`rounded px-3 py-1.5 text-[12px] font-medium transition-all ${activeTab === 'shap' ? 'bg-surface-raised text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] border border-border-subtle' : 'text-foreground/50 hover:text-foreground/80'}`}
-                >
-                  SHAP Analysis
-                </button>
-                <button
-                  onClick={() => setActiveTab('lime')}
-                  className={`rounded px-3 py-1.5 text-[12px] font-medium transition-all ${activeTab === 'lime' ? 'bg-surface-raised text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] border border-border-subtle' : 'text-foreground/50 hover:text-foreground/80'}`}
-                >
-                  LIME Local Explainer
-                </button>
-              </div>
-
-              <div className="rounded-md border border-border-subtle bg-surface p-5">
-                <h3 className="mb-6 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Top Global Drivers ({activeTab.toUpperCase()})</h3>
-                <div className="h-[260px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={displayData} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                      <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--foreground)', opacity: 0.5, fontSize: 11 }} />
-                      <Tooltip
-                        cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                        contentStyle={{ backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--foreground)', fontSize: '12px' }}
-                      />
-                      <Bar dataKey="value" radius={[2, 2, 2, 2]} barSize={20}>
-                        {displayData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.value >= 0 ? '#EDEDED' : '#333333'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="mt-4 flex justify-between px-10 text-[11px] text-foreground/40">
-                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#333333]" /> Negative Impact</span>
-                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#EDEDED]" /> Positive Impact</span>
+                <div className="h-[260px] w-full min-h-[200px]">
+                  {displayData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={displayData} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                        <XAxis type="number" hide />
+                        <YAxis
+                          dataKey="name"
+                          type="category"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: 'var(--landing-muted)', fontSize: 11 }}
+                          width={120}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'var(--landing-accent-soft)' }}
+                          contentStyle={{
+                            backgroundColor: 'var(--landing-surface)',
+                            border: '1px solid var(--landing-border)',
+                            borderRadius: '8px',
+                            color: 'var(--landing-fg)',
+                            fontSize: '12px',
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[2, 2, 2, 2]} barSize={20}>
+                          {displayData.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.value >= 0 ? 'var(--landing-accent)' : 'var(--landing-muted)'}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="flex h-full items-center justify-center text-sm text-[var(--landing-muted)]">
+                      No chart data available for this view.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
       </div>
-    </div>,
-    document.body
+    </ModalPortal>
   )
 }

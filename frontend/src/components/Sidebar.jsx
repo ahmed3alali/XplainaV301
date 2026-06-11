@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from '@/providers/AuthProvider'
-import { BookMarked, History, Loader2, Library, X, Plus, Trash2, Search } from 'lucide-react'
+import { BookMarked, Loader2, Plus, Trash2, Search, X } from 'lucide-react'
+import { ClaripathLogo } from '@/components/ClaripathLogo'
 import { api } from '@/services/api'
-import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ModalPortal } from '@/components/app/ModalPortal'
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }) {
   const { data: session } = useSession()
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
@@ -21,7 +23,7 @@ export default function Sidebar() {
       const data = await api.getMyCourses()
       setCourses(data || [])
     } catch (err) {
-      console.error("Failed to load user courses:", err)
+      console.error('Failed to load user courses:', err)
     } finally {
       setLoading(false)
     }
@@ -29,25 +31,32 @@ export default function Sidebar() {
 
   useEffect(() => {
     loadCourses()
+
+    const handleRefresh = () => loadCourses()
+    window.addEventListener('refresh-sidebar-courses', handleRefresh)
+    window.addEventListener('refresh-recommendations', handleRefresh)
+
+    return () => {
+      window.removeEventListener('refresh-sidebar-courses', handleRefresh)
+      window.removeEventListener('refresh-recommendations', handleRefresh)
+    }
   }, [session])
 
   const handleRemoveCourse = async (e, courseId) => {
-    e.stopPropagation() // Don't open the modal
+    e.stopPropagation()
     if (actionLoading) return
-    
+
     try {
       setActionLoading(true)
       const updatedIds = courses
-        .filter(c => (c.COURSE_ID || c.course_id) !== courseId)
-        .map(c => c.COURSE_ID || c.course_id)
-      
+        .filter((c) => (c.COURSE_ID || c.course_id) !== courseId)
+        .map((c) => c.COURSE_ID || c.course_id)
+
       await api.saveMyCourses(updatedIds)
       await loadCourses()
-      
-      // Tell the dashboard to refresh recommendations
       window.dispatchEvent(new CustomEvent('refresh-recommendations'))
-    } catch (err) {
-      alert("Failed to remove course")
+    } catch {
+      alert('Failed to remove course')
     } finally {
       setActionLoading(false)
     }
@@ -55,24 +64,21 @@ export default function Sidebar() {
 
   const handleAddCourse = async (course) => {
     if (actionLoading) return
-    
+
     try {
       setActionLoading(true)
-      const currentIds = courses.map(c => c.COURSE_ID || c.course_id)
+      const currentIds = courses.map((c) => c.COURSE_ID || c.course_id)
       if (currentIds.includes(course.COURSE_ID)) {
         setShowAddModal(false)
         return
       }
-      
-      const updatedIds = [...currentIds, course.COURSE_ID]
-      await api.saveMyCourses(updatedIds)
+
+      await api.saveMyCourses([...currentIds, course.COURSE_ID])
       await loadCourses()
-      
       setShowAddModal(false)
-      // Tell the dashboard to refresh recommendations
       window.dispatchEvent(new CustomEvent('refresh-recommendations'))
-    } catch (err) {
-      alert("Failed to add course")
+    } catch {
+      alert('Failed to add course')
     } finally {
       setActionLoading(false)
     }
@@ -80,103 +86,165 @@ export default function Sidebar() {
 
   if (!session?.user) return null
 
+  const isRealUser = session.user.userType === 'real_user'
+  const panel = (
+    <SidebarPanel
+      session={session}
+      isRealUser={isRealUser}
+      courses={courses}
+      loading={loading}
+      onAdd={() => setShowAddModal(true)}
+      onSelect={setSelectedCourse}
+      onRemove={handleRemoveCourse}
+      onMobileClose={onMobileClose}
+    />
+  )
+
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-80 flex-col border-r border-border-subtle bg-background lg:flex">
-      <div className="flex items-center gap-3 border-b border-border-subtle px-6 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface border border-border-subtle text-foreground">
-          <Library className="h-4 w-4" />
-        </div>
-        <div>
-          <h2 className="text-[13px] font-semibold text-foreground tracking-tight">Your Profile</h2>
-          <p className="text-[11px] text-foreground/60">
-            {session.user.userType === "dataset_user" ? 'Dataset Scholar' : 'Real-time Learner'}
-          </p>
-        </div>
-      </div>
+    <>
+      <aside className="app-sidebar fixed left-0 top-0 hidden h-dvh flex-col lg:flex">{panel}</aside>
 
-      <div className="flex-1 overflow-y-auto p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 flex items-center gap-1.5">
-            <History className="h-3 w-3" />  We think you have already taken
-          </h3>
-          <div className="flex items-center gap-2">
-             <span className="rounded-md border border-border-subtle bg-surface px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
-              {loading ? '...' : courses.length}
-            </span>
-            <button 
-              onClick={() => setShowAddModal(true)}
-              className="rounded-md p-1 text-accent hover:bg-accent/10 transition-colors"
-              title="Add Course"
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close panel"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="app-modal-overlay fixed inset-0 z-[80] lg:hidden"
+              onClick={onMobileClose}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', duration: 0.42, bounce: 0.12 }}
+              className="app-sidebar fixed left-0 top-0 z-[90] flex h-dvh flex-col shadow-2xl lg:hidden"
             >
-              <Plus className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {loading && courses.length === 0 ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 animate-pulse rounded-md bg-surface" />
-            ))}
-          </div>
-        ) : courses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-border-subtle bg-surface p-6 text-center">
-            <BookMarked className="mb-2 h-6 w-6 text-foreground/40" />
-            <p className="text-[12px] text-foreground/50">No courses taken.</p>
-            <button 
-              onClick={() => setShowAddModal(true)}
-              className="mt-3 text-[11px] font-medium text-accent hover:underline"
-            >
-              + Add your first course
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {courses.map((course, idx) => (
-              <div key={idx} className="group relative">
-                <button
-                  onClick={() => setSelectedCourse(course)}
-                  className="w-full text-left rounded-md border border-transparent bg-transparent px-3 py-2.5 transition-all hover:bg-surface hover:border-border-subtle cursor-pointer"
-                >
-                  <h4 className="line-clamp-2 text-[13px] font-medium text-foreground/80 group-hover:text-foreground leading-snug pr-6">
-                    {course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`}
-                  </h4>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {(course.genres || []).slice(0, 2).map((g) => (
-                      <span key={g} className="rounded border border-border-subtle bg-background px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-foreground/60 font-medium">
-                        {g}
-                      </span>
-                    ))}
-                  </div>
-                </button>
-                <button 
-                  onClick={(e) => handleRemoveCourse(e, course.COURSE_ID || course.course_id)}
-                  className="absolute right-2 top-3 p-1 opacity-0 group-hover:opacity-100 text-foreground/30 hover:text-red-500 transition-all"
-                  title="Remove"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
+              {panel}
+            </motion.aside>
+          </>
         )}
-      </div>
+      </AnimatePresence>
 
       {selectedCourse && (
-        <SeedCourseModal
-          course={selectedCourse}
-          onClose={() => setSelectedCourse(null)}
-        />
+        <SeedCourseModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
       )}
 
       {showAddModal && (
-        <AddCourseModal 
+        <AddCourseModal
           onClose={() => setShowAddModal(false)}
           onSelect={handleAddCourse}
-          existingIds={courses.map(c => c.COURSE_ID || c.course_id)}
+          existingIds={courses.map((c) => c.COURSE_ID || c.course_id)}
         />
       )}
-    </aside>
+    </>
+  )
+}
+
+function SidebarPanel({
+  session,
+  isRealUser,
+  courses,
+  loading,
+  onAdd,
+  onSelect,
+  onRemove,
+  onMobileClose,
+}) {
+  return (
+    <>
+      <div className="flex items-center justify-between border-b border-[var(--landing-border)] px-5 py-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <ClaripathLogo height={54} />
+          <p className="font-mono text-[10px] text-[var(--landing-muted)]">
+            {isRealUser ? 'Your transcript' : 'Dataset profile'}
+          </p>
+        </div>
+        <button type="button" onClick={onMobileClose} className="app-icon-btn lg:hidden" aria-label="Close">
+          <X className="h-4 w-4" strokeWidth={1.75} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        {isRealUser ? (
+          <>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--landing-muted)]">
+                Courses we think you took
+              </p>
+              <div className="flex items-center gap-1.5">
+                <span className="app-match-pill tabular-nums">{loading ? '…' : courses.length}</span>
+                <button
+                  type="button"
+                  onClick={onAdd}
+                  className="app-icon-btn h-8 w-8"
+                  aria-label="Add course"
+                >
+                  <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+                </button>
+              </div>
+            </div>
+
+            {loading && courses.length === 0 ? (
+              <div className="space-y-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="app-skeleton h-14" />
+                ))}
+              </div>
+            ) : courses.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-[var(--landing-border)] bg-[var(--landing-bg)] p-6 text-center">
+                <BookMarked className="mx-auto mb-2 h-6 w-6 text-[var(--landing-muted)]" strokeWidth={1.75} />
+                <p className="text-sm text-[var(--landing-muted)]">No courses yet</p>
+                <button type="button" onClick={onAdd} className="landing-nav-text-btn mt-3 text-[var(--landing-accent)]">
+                  Add your first course
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {courses.map((course, idx) => (
+                  <div key={idx} className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => onSelect(course)}
+                      className="app-course-row w-full pr-10 text-left"
+                    >
+                      <p className="line-clamp-2 text-[13px] font-medium leading-snug text-[var(--landing-fg)]">
+                        {course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {(course.genres || []).slice(0, 2).map((g) => (
+                          <span key={g} className="app-tag">
+                            {g}
+                          </span>
+                        ))}
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => onRemove(e, course.COURSE_ID || course.course_id)}
+                      className="absolute right-2 top-2.5 rounded-md p-1 text-[var(--landing-muted)] opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                      aria-label="Remove course"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="rounded-xl border border-[var(--landing-border)] bg-[var(--landing-bg)] p-5">
+            <p className="text-sm font-medium">Dataset user {session.user.id}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--landing-muted)]">
+              Recommendations are generated from historical dataset patterns for this profile.
+            </p>
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 
@@ -184,10 +252,8 @@ function AddCourseModal({ onClose, onSelect, existingIds }) {
   const [search, setSearch] = useState('')
   const [allCourses, setAllCourses] = useState([])
   const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     async function load() {
       try {
         const data = await api.getAllCourses()
@@ -201,118 +267,118 @@ function AddCourseModal({ onClose, onSelect, existingIds }) {
     load()
   }, [])
 
-  if (!mounted) return null
+  const filtered = allCourses
+    .filter(
+      (c) =>
+        !existingIds.includes(c.COURSE_ID) &&
+        (c.TITLE.toLowerCase().includes(search.toLowerCase()) ||
+          c.COURSE_ID.toLowerCase().includes(search.toLowerCase()))
+    )
+    .slice(0, 50)
 
-  const filtered = allCourses.filter(c => 
-    !existingIds.includes(c.COURSE_ID) &&
-    (c.TITLE.toLowerCase().includes(search.toLowerCase()) || 
-     c.COURSE_ID.toLowerCase().includes(search.toLowerCase()))
-  ).slice(0, 50)
-
-  return createPortal(
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="flex max-h-[80vh] w-full max-w-xl flex-col overflow-hidden rounded-lg border border-border-subtle bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border-subtle bg-surface px-6 py-4">
-          <h2 className="text-[16px] font-semibold text-foreground">Add Taken Course</h2>
-          <button onClick={onClose} className="rounded-md p-1.5 text-foreground/40 hover:bg-surface-raised hover:text-foreground">
-            <X className="h-4 w-4" />
+  return (
+    <ModalPortal onClose={onClose} zIndex={110} labelledBy="add-course-title" hostClassName="!w-[min(100%,36rem)]">
+      <div className="app-modal">
+        <div className="app-modal-header flex items-center justify-between px-5 py-4">
+          <h2 id="add-course-title" className="landing-display text-lg font-bold">
+            Add taken course
+          </h2>
+          <button type="button" onClick={onClose} className="app-icon-btn" aria-label="Close">
+            <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </div>
-        
-        <div className="p-4 border-b border-border-subtle bg-surface/50">
+
+        <div className="flex-shrink-0 border-b border-[var(--landing-border)] bg-[var(--landing-surface)] p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
-            <input 
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--landing-muted)]" />
+            <input
               autoFocus
               type="text"
-              placeholder="Search courses by title or ID..."
+              placeholder="Search by title or course ID"
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-md border border-border-subtle bg-background py-2 pl-10 pr-4 text-[14px] focus:border-accent focus:outline-none"
+              onChange={(e) => setSearch(e.target.value)}
+              className="app-input"
             />
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="app-modal-body p-2">
           {loading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-accent" />
+            <div className="space-y-2 p-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="app-skeleton h-12" />
+              ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-10 text-center text-[13px] text-foreground/40">
-              No matching courses found.
-            </div>
+            <p className="py-10 text-center text-sm text-[var(--landing-muted)]">No matching courses found.</p>
           ) : (
             <div className="space-y-1">
-              {filtered.map(course => (
-                <button 
+              {filtered.map((course) => (
+                <button
                   key={course.COURSE_ID}
+                  type="button"
                   onClick={() => onSelect(course)}
-                  className="w-full rounded-md px-4 py-3 text-left hover:bg-surface transition-colors group"
+                  className="app-course-row w-full text-left"
                 >
-                  <p className="text-[13px] font-medium text-foreground/90 group-hover:text-foreground">{course.TITLE}</p>
-                  <p className="mt-1 text-[11px] text-foreground/40">{course.COURSE_ID} • {course.genres?.join(', ')}</p>
+                  <p className="text-[13px] font-medium text-[var(--landing-fg)]">{course.TITLE}</p>
+                  <p className="mt-1 font-mono text-[11px] text-[var(--landing-muted)]">
+                    {course.COURSE_ID} · {course.genres?.join(', ')}
+                  </p>
                 </button>
               ))}
             </div>
           )}
         </div>
       </div>
-    </div>,
-    document.body
+    </ModalPortal>
   )
 }
 
 function SeedCourseModal({ course, onClose }) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  const title = course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border border-border-subtle bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border-subtle bg-surface px-6 py-4">
-          <h2 className="text-[17px] font-medium text-foreground tracking-tight break-words pr-4">
-            {course.title || course.TITLE || `Course ${course.course_id || course.COURSE_ID}`}
+  return (
+    <ModalPortal onClose={onClose} labelledBy="seed-course-title" hostClassName="!w-[min(100%,32rem)]">
+      <div className="app-modal">
+        <div className="app-modal-header flex items-start justify-between gap-3 px-5 py-4">
+          <h2 id="seed-course-title" className="landing-display pr-2 text-lg font-bold leading-snug">
+            {title}
           </h2>
-          <button onClick={onClose} className="rounded-md p-1.5 text-foreground/40 hover:bg-surface-raised hover:text-foreground transition-colors border border-transparent hover:border-border-subtle">
-            <X className="h-4 w-4" />
+          <button type="button" onClick={onClose} className="app-icon-btn shrink-0" aria-label="Close">
+            <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </div>
-        <div className="p-6">
-          <div className="mb-6 rounded-md border border-accent/20 bg-accent/5 p-4">
-            <div className="mb-2 flex items-center gap-1.5 text-[13px] font-semibold text-accent">
-              <BookMarked className="h-4 w-4" />
-              Why is this course here?
-            </div>
-            <p className="text-[13px] leading-relaxed text-foreground/70">
-              This is a <strong className="text-foreground font-medium">Seed Course</strong>.
-              We automatically selected it because it perfectly matches the skills you chose during onboarding.
-              It acts as a foundation to trigger the AI model and generate your personalized recommendations.
+        <div className="app-modal-body space-y-5 p-5">
+          <div className="rounded-xl border border-[var(--landing-border)] bg-[var(--landing-accent-soft)] p-4">
+            <p className="text-sm font-semibold text-[var(--landing-accent)]">Why is this course here?</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--landing-muted)]">
+              This is a seed course selected because it matches skills from your onboarding answers. It helps the
+              Xplaina model anchor your recommendations.
             </p>
           </div>
 
           <div>
-            <h3 className="mb-3 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course Genres</h3>
-            <div className="flex flex-wrap gap-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--landing-muted)]">Genres</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {(course.genres || []).map((g) => (
-                <span key={g} className="rounded border border-border-subtle bg-surface-raised px-2 py-1 text-[11px] font-medium text-foreground/80">
+                <span key={g} className="app-tag text-[11px]">
                   {g}
                 </span>
               ))}
               {(!course.genres || course.genres.length === 0) && (
-                <span className="text-[12px] text-foreground/40 italic">No genres available</span>
+                <span className="text-sm text-[var(--landing-muted)]">No genres listed</span>
               )}
             </div>
           </div>
 
-          <div className="mt-6">
-            <h3 className="mb-2 text-[11px] font-semibold text-foreground/40 uppercase tracking-wider">Course ID</h3>
-            <p className="text-[13px] font-mono text-foreground/60">{course.course_id || course.COURSE_ID}</p>
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--landing-muted)]">Course ID</p>
+            <p className="mt-1 font-mono text-sm text-[var(--landing-fg)]">
+              {course.course_id || course.COURSE_ID}
+            </p>
           </div>
         </div>
       </div>
-    </div>,
-    document.body
+    </ModalPortal>
   )
 }
