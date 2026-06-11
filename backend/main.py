@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends
 import os
-from supabase import create_client
+from db import close_pool, executemany, execute, fetchall, init_pool, ping
 from pydantic import BaseModel
 from typing import List, Any
 import sys
@@ -65,8 +65,13 @@ from utils_llm import get_dynamic_llm_explanation
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        init_pool()
+    except RuntimeError as e:
+        print(f"Warning: database pool not started — {e}")
     load_all_data()
     yield
+    close_pool()
     print("Shutting down model API")
 
 app = FastAPI(title="XplainaV301 API", lifespan=lifespan)
@@ -110,7 +115,8 @@ app.include_router(mentor_router)
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    db_ok = ping()
+    return {"status": "ok", "database": "ok" if db_ok else "unavailable"}
 
 @app.get("/users/me")
 def get_me(user: dict = Depends(get_current_user)):
@@ -129,11 +135,11 @@ def my_courses(user: dict = Depends(get_current_user)):
         course_ids = set(user_ratings['item'].astype(str).tolist())
     else:
         try:
-            url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
-            key = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
-            sb = create_client(url, key)
-            sb_res = sb.table("user_courses").select("course_id").eq("user_id", user_id).execute()
-            course_ids = {str(d['course_id']) for d in sb_res.data}
+            rows = fetchall(
+                "SELECT course_id FROM user_courses WHERE user_id = %s",
+                (user_id,),
+            )
+            course_ids = {str(r["course_id"]) for r in rows}
         except Exception:
             course_ids = set()
             
@@ -157,18 +163,12 @@ def save_my_courses(req: SelectedCoursesReq, user: dict = Depends(get_current_us
         return {"status": "ok", "message": "Dataset users are read-only"}
         
     try:
-        url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
-        key = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
-        sb = create_client(url, key)
-        
-        # Delete old selections
-        sb.table("user_courses").delete().eq("user_id", user_id).execute()
-        
-        # Save each course
+        execute("DELETE FROM user_courses WHERE user_id = %s", (user_id,))
         if req.selected_courses:
-            inserts = [{"user_id": user_id, "course_id": str(cid)} for cid in req.selected_courses]
-            sb.table("user_courses").insert(inserts).execute()
-            
+            executemany(
+                "INSERT INTO user_courses (user_id, course_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                [(user_id, str(cid)) for cid in req.selected_courses],
+            )
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save courses: {str(e)}")
@@ -526,13 +526,12 @@ def save_profile(req: SaveProfileRequest, user: dict = Depends(get_current_user)
     if user.get("user_type") == "dataset_user":
         return {"status": "ok", "message": "Dataset users are read-only"}
     try:
-        url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
-        key = os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
-        sb = create_client(url, key)
         update_payload = {k: v for k, v in req.model_dump().items() if v is not None}
         if not update_payload:
             return {"status": "ok", "message": "Nothing to update"}
-        sb.table("users").update(update_payload).eq("id", user_id).execute()
+        sets = ", ".join(f"{k} = %s" for k in update_payload)
+        values = list(update_payload.values()) + [user_id]
+        execute(f"UPDATE users SET {sets} WHERE id = %s", tuple(values))
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save profile: {str(e)}")

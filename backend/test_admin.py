@@ -12,15 +12,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 import pytest
 from fastapi.testclient import TestClient
 
-# ── Minimal env so supabase client doesn't crash on import ───────────────────
-os.environ.setdefault("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co")
-os.environ.setdefault("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test_anon_key_placeholder_value_12345")
-os.environ.setdefault("ADMIN_SERVICE_ROLE_KEY", "test_service_key_placeholder_value_1234")
+# ── Minimal env for tests (no real Postgres connection) ──────────────────────
+os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/test")
 os.environ.setdefault("ADMIN_JWT_SECRET", "test_admin_secret_for_tests_must_be_32_chars!")
 os.environ.setdefault("JWT_SECRET_KEY", "test_user_secret_for_tests_must_be_32_chars_!")
 
-
-# Patch supabase client to avoid real network calls during unit tests
 import unittest.mock as mock
 
 # ── Import app after env is set ───────────────────────────────────────────────
@@ -121,17 +117,25 @@ def test_rate_limit_clears_on_success():
 
 @pytest.fixture(scope="module")
 def client():
-    """
-    Creates a TestClient with supabase patched out so tests run without
-    a real database. Tests validate security logic, not DB operations.
-    """
-    with mock.patch("api_admin.get_admin_supabase") as mock_sb_factory:
-        # Default: return a mock that raises to simulate DB errors
-        mock_sb_factory.return_value = mock.MagicMock()
-        # Import app here so the patch is already active
+    """TestClient with Postgres patched out — security logic only."""
+    patches = [
+        mock.patch("db.ping", return_value=True),
+        mock.patch("db.init_pool"),
+        mock.patch("db.close_pool"),
+        mock.patch("api_admin.fetchall", return_value=[]),
+        mock.patch("api_admin.fetchone", return_value=None),
+        mock.patch("api_admin.fetchval", return_value=0),
+        mock.patch("api_admin.execute", return_value=0),
+    ]
+    for p in patches:
+        p.start()
+    try:
         from main import app
         with TestClient(app, raise_server_exceptions=False) as c:
             yield c
+    finally:
+        for p in patches:
+            p.stop()
 
 
 def make_admin_token(role="admin", is_active=True):

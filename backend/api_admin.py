@@ -1,24 +1,19 @@
 """
 FastAPI router for all /admin/** endpoints.
-
-Security model:
-  - All routes require a valid admin JWT (scope="admin")
-  - Destructive mutations require role="superadmin"
-  - Login is rate-limited (5 attempts → 15-min lockout)
-  - Every mutation writes to admin_audit_log
-  - CSV export streams without loading everything into memory
-  - password_hash is NEVER returned in any response
+All data access goes through DATABASE_URL (Postgres pool) — no Supabase client.
 """
 import csv
 import io
+import json
 import logging
-import os
+import math
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
-from supabase import create_client, Client
+from psycopg2.extras import Json
 
 from admin_auth import (
     create_admin_token,
@@ -40,33 +35,32 @@ from admin_schemas import (
     AdminCreate,
     PasswordUpdate,
     AdminStatsOut,
-
     InviteCreateRequest,
     InviteOut,
     UserAdminView,
     UserAdminUpdate,
     PaginatedUsersResponse,
 )
+from db import execute, execute_returning, fetchall, fetchone, fetchval, get_database_url
 
 logger = logging.getLogger("admin_api")
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-# ── Supabase client (service role — bypasses RLS) ────────────────────────────
-
-def get_admin_supabase() -> Client:
-    url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "")
-    # Use service role key for admin operations (bypasses RLS)
-    key = os.environ.get("ADMIN_SERVICE_ROLE_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
-    if not url or not key:
-        raise HTTPException(status_code=500, detail="Supabase credentials not configured.")
-    return create_client(url, key)
+def _require_db():
+    try:
+        get_database_url()
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Audit logger ─────────────────────────────────────────────────────────────
+def _parse_ts(value) -> datetime:
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+
 
 def write_audit_log(
-    sb: Client,
     admin: dict,
     action: str,
     target_type: str = None,
@@ -75,68 +69,126 @@ def write_audit_log(
     ip: str = None,
 ):
     try:
-        sb.table("admin_audit_log").insert({
-            "admin_id": admin.get("sub"),
-            "admin_email": admin.get("email"),
-            "action": action,
-            "target_type": target_type,
-            "target_id": target_id,
-            "metadata": metadata or {},
-            "ip_address": ip,
-        }).execute()
+        execute(
+            """
+            INSERT INTO admin_audit_log
+              (admin_id, admin_email, action, target_type, target_id, metadata, ip_address)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                admin.get("sub"),
+                admin.get("email"),
+                action,
+                target_type,
+                target_id,
+                Json(metadata or {}),
+                ip,
+            ),
+        )
     except Exception as e:
         logger.warning(f"Audit log write failed: {e}")
 
 
-# ── AUTH ──────────────────────────────────────────────────────────────────────
+def _admin_out(row: dict) -> AdminOut:
+    return AdminOut(
+        id=str(row["id"]),
+        email=row["email"],
+        full_name=row.get("full_name"),
+        role=row["role"],
+        is_active=row["is_active"],
+        created_at=row["created_at"],
+        last_login_at=row.get("last_login_at"),
+    )
+
+
+def _invite_out(row: dict) -> InviteOut:
+    return InviteOut(
+        id=str(row["id"]),
+        token=row["token"],
+        email=row.get("email"),
+        role=row["role"],
+        used=row["used"],
+        expires_at=row["expires_at"],
+        created_at=row["created_at"],
+    )
+
+
+def _normalize_skills(skills):
+    if isinstance(skills, str):
+        try:
+            return json.loads(skills)
+        except Exception:
+            return []
+    return skills or []
+
+
+def _enrich_users(users: list) -> List[UserAdminView]:
+    result = []
+    for u in users:
+        uid = str(u["id"])
+        course_count = fetchval(
+            "SELECT COUNT(*) FROM user_courses WHERE user_id = %s",
+            (uid,),
+        ) or 0
+        result.append(UserAdminView(
+            id=uid,
+            email=u.get("email", ""),
+            full_name=u.get("full_name"),
+            education_level=u.get("education_level"),
+            college_year=u.get("college_year"),
+            interest_text=u.get("interest_text"),
+            selected_skills=_normalize_skills(u.get("selected_skills")),
+            is_active=u.get("is_active", True),
+            course_count=int(course_count),
+            created_at=u.get("created_at", ""),
+        ))
+    return result
+
+
+USER_COLS = (
+    "id, email, full_name, education_level, college_year, "
+    "interest_text, selected_skills, is_active, created_at"
+)
+ADMIN_COLS = "id, email, full_name, role, is_active, created_at, last_login_at"
+
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def admin_register(body: AdminRegisterRequest):
-    """
-    Register a new admin using a one-time invite token.
-    No static secrets — the invite system is the gatekeeper.
-    """
-    sb = get_admin_supabase()
-
-    # 1. Validate invite token
-    inv_res = sb.table("admin_invites").select("*").eq("token", body.invite_token).execute()
-    if not inv_res.data:
+    _require_db()
+    invite = fetchone("SELECT * FROM admin_invites WHERE token = %s", (body.invite_token,))
+    if not invite:
         raise HTTPException(status_code=400, detail="Invalid invite token.")
-
-    invite = inv_res.data[0]
     if invite["used"]:
         raise HTTPException(status_code=400, detail="Invite token already used.")
 
-    # Check expiry
-    expires_at = datetime.fromisoformat(invite["expires_at"].replace("Z", "+00:00"))
+    expires_at = _parse_ts(invite["expires_at"])
     if datetime.now(timezone.utc) > expires_at:
         raise HTTPException(status_code=400, detail="Invite token has expired.")
 
-    # If pre-assigned email, enforce it
     if invite.get("email") and invite["email"].lower() != body.email.lower():
         raise HTTPException(status_code=400, detail="This invite was issued for a different email.")
 
-    # 2. Check email uniqueness
-    existing = sb.table("admins").select("id").eq("email", body.email).execute()
-    if existing.data:
+    existing = fetchone("SELECT id FROM admins WHERE email = %s", (body.email,))
+    if existing:
         raise HTTPException(status_code=400, detail="Email already registered as admin.")
 
-    # 3. Create the admin
     password_hash = hash_admin_password(body.password)
-    new_admin = sb.table("admins").insert({
-        "email": body.email,
-        "password_hash": password_hash,
-        "full_name": body.full_name,
-        "role": invite["role"],
-    }).execute()
-
-    if not new_admin.data:
+    admin_row = execute_returning(
+        """
+        INSERT INTO admins (email, password_hash, full_name, role)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id, email, full_name, role, is_active, created_at, last_login_at
+        """,
+        (body.email, password_hash, body.full_name, invite["role"]),
+    )
+    if not admin_row:
         raise HTTPException(status_code=500, detail="Admin creation failed.")
 
-    # 4. Mark invite as used
-    sb.table("admin_invites").update({"used": True}).eq("token", body.invite_token).execute()
+    execute(
+        "UPDATE admin_invites SET used = true WHERE token = %s",
+        (body.invite_token,),
+    )
 
-    admin_row = new_admin.data[0]
     token = create_admin_token({
         "sub": str(admin_row["id"]),
         "email": admin_row["email"],
@@ -155,26 +207,19 @@ def admin_register(body: AdminRegisterRequest):
 
 @router.post("/login", response_model=AdminLoginResponse)
 def admin_login(body: AdminLoginRequest, request: Request):
-    """
-    Admin login with rate limiting (5 failures → 15-min lockout).
-    """
+    _require_db()
     email = body.email.lower().strip()
 
-    # Rate limit check
     if is_rate_limited(email):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many failed attempts. Please try again in 15 minutes.",
         )
 
-    sb = get_admin_supabase()
-    res = sb.table("admins").select("*").eq("email", email).execute()
-
-    if not res.data:
+    admin = fetchone("SELECT * FROM admins WHERE email = %s", (email,))
+    if not admin:
         record_failed_attempt(email)
         raise HTTPException(status_code=401, detail="Invalid credentials.")
-
-    admin = res.data[0]
 
     if not admin.get("is_active", True):
         raise HTTPException(status_code=403, detail="Admin account is deactivated.")
@@ -183,9 +228,11 @@ def admin_login(body: AdminLoginRequest, request: Request):
         record_failed_attempt(email)
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
-    # Success — clear failures, update last_login_at
     clear_failed_attempts(email)
-    sb.table("admins").update({"last_login_at": datetime.utcnow().isoformat()}).eq("id", admin["id"]).execute()
+    execute(
+        "UPDATE admins SET last_login_at = %s WHERE id = %s",
+        (datetime.now(timezone.utc), admin["id"]),
+    )
 
     token = create_admin_token({
         "sub": str(admin["id"]),
@@ -194,10 +241,8 @@ def admin_login(body: AdminLoginRequest, request: Request):
         "is_active": admin["is_active"],
     })
 
-    # Audit
     ip = request.client.host if request.client else None
     write_audit_log(
-        sb,
         {"sub": str(admin["id"]), "email": admin["email"]},
         action="admin_login",
         ip=ip,
@@ -212,140 +257,80 @@ def admin_login(body: AdminLoginRequest, request: Request):
     )
 
 
-# ── INVITES ───────────────────────────────────────────────────────────────────
-
 @router.post("/invites", response_model=InviteOut, status_code=201)
 def create_invite(body: InviteCreateRequest, admin: dict = Depends(require_superadmin)):
-    sb = get_admin_supabase()
+    _require_db()
     token = generate_invite_token()
-    expires_at = (datetime.utcnow() + timedelta(hours=body.expires_in_hours)).isoformat()
+    expires_at = datetime.utcnow() + timedelta(hours=body.expires_in_hours)
 
-    row = sb.table("admin_invites").insert({
-        "token": token,
-        "email": body.email,
-        "role": body.role,
-        "expires_at": expires_at,
-        "created_by": admin.get("sub"),
-    }).execute()
-
-    if not row.data:
+    row = execute_returning(
+        """
+        INSERT INTO admin_invites (token, email, role, expires_at, created_by)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING *
+        """,
+        (token, body.email, body.role, expires_at, admin.get("sub")),
+    )
+    if not row:
         raise HTTPException(status_code=500, detail="Failed to create invite.")
 
-    write_audit_log(sb, admin, "create_invite", target_type="invite", metadata={"role": body.role, "email": body.email})
-
-    r = row.data[0]
-    return InviteOut(
-        id=str(r["id"]),
-        token=r["token"],
-        email=r.get("email"),
-        role=r["role"],
-        used=r["used"],
-        expires_at=r["expires_at"],
-        created_at=r["created_at"],
-    )
+    write_audit_log(admin, "create_invite", target_type="invite", metadata={"role": body.role, "email": body.email})
+    return _invite_out(row)
 
 
 @router.get("/invites", response_model=List[InviteOut])
 def list_invites(admin: dict = Depends(require_superadmin)):
-    sb = get_admin_supabase()
-    res = sb.table("admin_invites").select("*").order("created_at", desc=True).execute()
-    return [
-        InviteOut(
-            id=str(r["id"]),
-            token=r["token"],
-            email=r.get("email"),
-            role=r["role"],
-            used=r["used"],
-            expires_at=r["expires_at"],
-            created_at=r["created_at"],
-        )
-        for r in (res.data or [])
-    ]
+    _require_db()
+    rows = fetchall("SELECT * FROM admin_invites ORDER BY created_at DESC")
+    return [_invite_out(r) for r in rows]
 
 
 @router.delete("/invites/{invite_id}", status_code=204)
 def revoke_invite(invite_id: str, admin: dict = Depends(require_superadmin)):
-    sb = get_admin_supabase()
-    sb.table("admin_invites").delete().eq("id", invite_id).execute()
-    write_audit_log(sb, admin, "revoke_invite", target_type="invite", target_id=invite_id)
+    _require_db()
+    execute("DELETE FROM admin_invites WHERE id = %s", (invite_id,))
+    write_audit_log(admin, "revoke_invite", target_type="invite", target_id=invite_id)
 
-
-# ── ADMINS CRUD ───────────────────────────────────────────────────────────────
 
 @router.get("/admins", response_model=List[AdminOut])
 def list_admins(admin: dict = Depends(get_admin_user)):
-    sb = get_admin_supabase()
-    res = sb.table("admins").select(
-        "id, email, full_name, role, is_active, created_at, last_login_at"
-    ).order("created_at", desc=True).execute()
-
-    return [
-        AdminOut(
-            id=str(r["id"]),
-            email=r["email"],
-            full_name=r.get("full_name"),
-            role=r["role"],
-            is_active=r["is_active"],
-            created_at=r["created_at"],
-            last_login_at=r.get("last_login_at"),
-        )
-        for r in (res.data or [])
-    ]
+    _require_db()
+    rows = fetchall(f"SELECT {ADMIN_COLS} FROM admins ORDER BY created_at DESC")
+    return [_admin_out(r) for r in rows]
 
 
 @router.get("/admins/{admin_id}", response_model=AdminOut)
 def get_admin(admin_id: str, admin: dict = Depends(get_admin_user)):
-    sb = get_admin_supabase()
-    res = sb.table("admins").select(
-        "id, email, full_name, role, is_active, created_at, last_login_at"
-    ).eq("id", admin_id).execute()
-
-    if not res.data:
+    _require_db()
+    row = fetchone(f"SELECT {ADMIN_COLS} FROM admins WHERE id = %s", (admin_id,))
+    if not row:
         raise HTTPException(status_code=404, detail="Admin not found.")
-
-    r = res.data[0]
-    return AdminOut(
-        id=str(r["id"]),
-        email=r["email"],
-        full_name=r.get("full_name"),
-        role=r["role"],
-        is_active=r["is_active"],
-        created_at=r["created_at"],
-        last_login_at=r.get("last_login_at"),
-    )
+    return _admin_out(row)
 
 
 @router.patch("/admins/{admin_id}", response_model=AdminOut)
 def update_admin(admin_id: str, body: AdminUpdate, admin: dict = Depends(require_superadmin)):
-    # Prevent superadmin from deactivating themselves
     if admin_id == admin.get("sub") and body.is_active is False:
         raise HTTPException(status_code=400, detail="You cannot deactivate your own account.")
 
-    sb = get_admin_supabase()
+    _require_db()
     update_data = {k: v for k, v in body.model_dump().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update.")
 
-    update_data["updated_at"] = datetime.utcnow().isoformat()
-    res = sb.table("admins").update(update_data).eq("id", admin_id).select(
-        "id, email, full_name, role, is_active, created_at, last_login_at"
-    ).execute()
+    update_data["updated_at"] = datetime.utcnow()
+    sets = ", ".join(f"{k} = %s" for k in update_data)
+    values = list(update_data.values()) + [admin_id]
 
-    if not res.data:
+    row = execute_returning(
+        f"UPDATE admins SET {sets} WHERE id = %s RETURNING {ADMIN_COLS}",
+        tuple(values),
+    )
+    if not row:
         raise HTTPException(status_code=404, detail="Admin not found.")
 
-    write_audit_log(sb, admin, "update_admin", target_type="admin", target_id=admin_id, metadata=update_data)
-
-    r = res.data[0]
-    return AdminOut(
-        id=str(r["id"]),
-        email=r["email"],
-        full_name=r.get("full_name"),
-        role=r["role"],
-        is_active=r["is_active"],
-        created_at=r["created_at"],
-        last_login_at=r.get("last_login_at"),
-    )
+    write_audit_log(admin, "update_admin", target_type="admin", target_id=admin_id, metadata=update_data)
+    return _admin_out(row)
 
 
 @router.delete("/admins/{admin_id}", status_code=204)
@@ -353,106 +338,55 @@ def delete_admin(admin_id: str, admin: dict = Depends(require_superadmin)):
     if admin_id == admin.get("sub"):
         raise HTTPException(status_code=400, detail="You cannot delete your own account.")
 
-    sb = get_admin_supabase()
-    # Soft-delete: set is_active=false
-    sb.table("admins").update({"is_active": False, "updated_at": datetime.utcnow().isoformat()}).eq("id", admin_id).execute()
-    write_audit_log(sb, admin, "deactivate_admin", target_type="admin", target_id=admin_id)
+    _require_db()
+    execute(
+        "UPDATE admins SET is_active = false, updated_at = %s WHERE id = %s",
+        (datetime.utcnow(), admin_id),
+    )
+    write_audit_log(admin, "deactivate_admin", target_type="admin", target_id=admin_id)
 
 
 @router.post("/admins", response_model=AdminOut, status_code=201)
 def create_admin_manually(body: AdminCreate, admin: dict = Depends(require_superadmin)):
-    """
-    Directly create an admin without an invite token.
-    Superadmin only.
-    """
-    sb = get_admin_supabase()
-    
-    # Check email uniqueness
-    existing = sb.table("admins").select("id").eq("email", body.email).execute()
-    if existing.data:
+    _require_db()
+    existing = fetchone("SELECT id FROM admins WHERE email = %s", (body.email,))
+    if existing:
         raise HTTPException(status_code=400, detail="Email already registered as admin.")
 
     password_hash = hash_admin_password(body.password)
-    new_admin = sb.table("admins").insert({
-        "email": body.email,
-        "password_hash": password_hash,
-        "full_name": body.full_name,
-        "role": body.role,
-        "is_active": True,
-    }).execute()
-
-    if not new_admin.data:
+    row = execute_returning(
+        """
+        INSERT INTO admins (email, password_hash, full_name, role, is_active)
+        VALUES (%s, %s, %s, %s, true)
+        RETURNING id, email, full_name, role, is_active, created_at, last_login_at
+        """,
+        (body.email, password_hash, body.full_name, body.role),
+    )
+    if not row:
         raise HTTPException(status_code=500, detail="Admin creation failed.")
 
-    r = new_admin.data[0]
-    write_audit_log(sb, admin, "create_admin_manual", target_type="admin", target_id=str(r["id"]), metadata={"email": r["email"], "role": r["role"]})
-
-    return AdminOut(
-        id=str(r["id"]),
-        email=r["email"],
-        full_name=r.get("full_name"),
-        role=r["role"],
-        is_active=r["is_active"],
-        created_at=r["created_at"],
-        last_login_at=None,
+    write_audit_log(
+        admin, "create_admin_manual", target_type="admin", target_id=str(row["id"]),
+        metadata={"email": row["email"], "role": row["role"]},
     )
+    return _admin_out(row)
 
 
 @router.patch("/admins/{admin_id}/password", status_code=204)
 def change_admin_password(admin_id: str, body: PasswordUpdate, current_admin: dict = Depends(get_admin_user)):
-    """
-    Change an admin's password.
-    Self can change own, superadmin can change anyone's.
-    """
     if admin_id != current_admin.get("sub") and current_admin.get("role") != "superadmin":
         raise HTTPException(status_code=403, detail="Not authorized to change this admin's password.")
 
-    sb = get_admin_supabase()
+    _require_db()
     password_hash = hash_admin_password(body.new_password)
-    
-    res = sb.table("admins").update({
-        "password_hash": password_hash,
-        "updated_at": datetime.utcnow().isoformat()
-    }).eq("id", admin_id).execute()
-
-    if not res.data:
+    updated = execute(
+        "UPDATE admins SET password_hash = %s, updated_at = %s WHERE id = %s",
+        (password_hash, datetime.utcnow(), admin_id),
+    )
+    if not updated:
         raise HTTPException(status_code=404, detail="Admin not found.")
 
-    write_audit_log(sb, current_admin, "change_admin_password", target_type="admin", target_id=admin_id)
-
-
-
-# ── USERS CRUD ────────────────────────────────────────────────────────────────
-
-def _enrich_users(sb: Client, users: list) -> List[UserAdminView]:
-    """Add course count to each user row."""
-    result = []
-    for u in users:
-        uid = str(u["id"])
-        cc_res = sb.table("user_courses").select("id", count="exact").eq("user_id", uid).execute()
-        course_count = cc_res.count if cc_res.count is not None else len(cc_res.data or [])
-
-        skills = u.get("selected_skills")
-        if isinstance(skills, str):
-            import json
-            try:
-                skills = json.loads(skills)
-            except Exception:
-                skills = []
-
-        result.append(UserAdminView(
-            id=uid,
-            email=u.get("email", ""),
-            full_name=u.get("full_name"),
-            education_level=u.get("education_level"),
-            college_year=u.get("college_year"),
-            interest_text=u.get("interest_text"),
-            selected_skills=skills,
-            is_active=u.get("is_active", True),
-            course_count=course_count,
-            created_at=u.get("created_at", ""),
-        ))
-    return result
+    write_audit_log(current_admin, "change_admin_password", target_type="admin", target_id=admin_id)
 
 
 @router.get("/users", response_model=PaginatedUsersResponse)
@@ -463,32 +397,31 @@ def list_users(
     has_courses: Optional[bool] = Query(None),
     admin: dict = Depends(get_admin_user),
 ):
-    sb = get_admin_supabase()
+    _require_db()
+    where = []
+    params: list = []
+    if search:
+        where.append("email ILIKE %s")
+        params.append(f"%{search}%")
+    where_sql = f" WHERE {' AND '.join(where)}" if where else ""
 
-    query = sb.table("users").select(
-        "id, email, full_name, education_level, college_year, interest_text, selected_skills, is_active, created_at",
-        count="exact",
+    total = fetchval(f"SELECT COUNT(*) FROM users{where_sql}", tuple(params)) or 0
+    offset = (page - 1) * page_size
+    users = fetchall(
+        f"""
+        SELECT {USER_COLS} FROM users{where_sql}
+        ORDER BY created_at DESC
+        LIMIT %s OFFSET %s
+        """,
+        tuple(params) + (page_size, offset),
     )
 
-    if search:
-        query = query.ilike("email", f"%{search}%")
-
-    offset = (page - 1) * page_size
-    query = query.order("created_at", desc=True).range(offset, offset + page_size - 1)
-    res = query.execute()
-
-    users = res.data or []
-    total = res.count if res.count is not None else len(users)
-
-    # Filter by has_courses after fetching (Supabase anon client lacks join filters)
-    enriched = _enrich_users(sb, users)
-
+    enriched = _enrich_users(users)
     if has_courses is True:
         enriched = [u for u in enriched if u.course_count > 0]
     elif has_courses is False:
         enriched = [u for u in enriched if u.course_count == 0]
 
-    import math
     return PaginatedUsersResponse(
         data=enriched,
         total=total,
@@ -500,45 +433,38 @@ def list_users(
 
 @router.get("/users/export")
 def export_users_csv(admin: dict = Depends(get_admin_user)):
-    """
-    Streams a CSV file of all users.
-    password_hash is explicitly excluded.
-    """
-    sb = get_admin_supabase()
-    res = sb.table("users").select(
-        "id, email, full_name, education_level, college_year, interest_text, selected_skills, is_active, created_at"
-    ).order("created_at", desc=True).execute()
+    _require_db()
+    users = fetchall(
+        f"SELECT {USER_COLS} FROM users ORDER BY created_at DESC",
+    )
 
-    users = res.data or []
-
-    # Enrich with course counts
     for u in users:
-        cc_res = sb.table("user_courses").select("id", count="exact").eq("user_id", str(u["id"])).execute()
-        u["course_count"] = cc_res.count if cc_res.count is not None else len(cc_res.data or [])
+        u["course_count"] = fetchval(
+            "SELECT COUNT(*) FROM user_courses WHERE user_id = %s",
+            (str(u["id"]),),
+        ) or 0
 
-    FIELDNAMES = [
+    fieldnames = [
         "id", "email", "full_name", "education_level", "college_year",
         "interest_text", "selected_skills", "is_active", "course_count", "created_at",
     ]
 
     def generate():
         output = io.StringIO()
-        writer = csv.DictWriter(output, fieldnames=FIELDNAMES, extrasaction="ignore")
+        writer = csv.DictWriter(output, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         yield output.getvalue()
         output.seek(0)
         output.truncate()
         for row in users:
-            # Flatten list fields
             if isinstance(row.get("selected_skills"), list):
                 row["selected_skills"] = "|".join(row["selected_skills"])
-            writer.writerow({k: row.get(k, "") for k in FIELDNAMES})
+            writer.writerow({k: row.get(k, "") for k in fieldnames})
             yield output.getvalue()
             output.seek(0)
             output.truncate()
 
-    write_audit_log(sb, admin, "export_users_csv", metadata={"count": len(users)})
-
+    write_audit_log(admin, "export_users_csv", metadata={"count": len(users)})
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     headers = {"Content-Disposition": f"attachment; filename=users_export_{timestamp}.csv"}
     return StreamingResponse(generate(), media_type="text/csv", headers=headers)
@@ -546,98 +472,79 @@ def export_users_csv(admin: dict = Depends(get_admin_user)):
 
 @router.get("/users/{user_id}", response_model=UserAdminView)
 def get_user(user_id: str, admin: dict = Depends(get_admin_user)):
-    sb = get_admin_supabase()
-    res = sb.table("users").select(
-        "id, email, full_name, education_level, college_year, interest_text, selected_skills, is_active, created_at"
-    ).eq("id", user_id).execute()
-
-    if not res.data:
+    _require_db()
+    row = fetchone(f"SELECT {USER_COLS} FROM users WHERE id = %s", (user_id,))
+    if not row:
         raise HTTPException(status_code=404, detail="User not found.")
-
-    enriched = _enrich_users(sb, res.data)
-    return enriched[0]
+    return _enrich_users([row])[0]
 
 
 @router.patch("/users/{user_id}", response_model=UserAdminView)
 def update_user(user_id: str, body: UserAdminUpdate, admin: dict = Depends(get_admin_user)):
-    sb = get_admin_supabase()
+    _require_db()
     update_data = {k: v for k, v in body.model_dump().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update.")
 
-    res = sb.table("users").update(update_data).eq("id", user_id).select(
-        "id, email, full_name, education_level, college_year, interest_text, selected_skills, is_active, created_at"
-    ).execute()
-
-    if not res.data:
+    sets = ", ".join(f"{k} = %s" for k in update_data)
+    values = list(update_data.values()) + [user_id]
+    row = execute_returning(
+        f"UPDATE users SET {sets} WHERE id = %s RETURNING {USER_COLS}",
+        tuple(values),
+    )
+    if not row:
         raise HTTPException(status_code=404, detail="User not found.")
 
-    write_audit_log(sb, admin, "update_user", target_type="user", target_id=user_id, metadata=update_data)
-    enriched = _enrich_users(sb, res.data)
-    return enriched[0]
+    write_audit_log(admin, "update_user", target_type="user", target_id=user_id, metadata=update_data)
+    return _enrich_users([row])[0]
 
 
 @router.delete("/users/{user_id}", status_code=204)
 def delete_user(user_id: str, admin: dict = Depends(require_superadmin)):
-    sb = get_admin_supabase()
-
-    # Hard delete with cascade (user_courses deleted by FK constraint)
-    sb.table("users").delete().eq("id", user_id).execute()
-    write_audit_log(sb, admin, "delete_user", target_type="user", target_id=user_id)
+    _require_db()
+    execute("DELETE FROM users WHERE id = %s", (user_id,))
+    write_audit_log(admin, "delete_user", target_type="user", target_id=user_id)
 
 
 @router.patch("/users/{user_id}/password", status_code=204)
 def change_user_password(user_id: str, body: PasswordUpdate, admin: dict = Depends(get_admin_user)):
-    """
-    Change a student's password.
-    Any admin can do this.
-    """
-    sb = get_admin_supabase()
+    _require_db()
     password_hash = hash_admin_password(body.new_password)
-    
-    res = sb.table("users").update({
-        "password_hash": password_hash,
-    }).eq("id", user_id).execute()
-
-    if not res.data:
+    updated = execute(
+        "UPDATE users SET password_hash = %s WHERE id = %s",
+        (password_hash, user_id),
+    )
+    if not updated:
         raise HTTPException(status_code=404, detail="User not found.")
+    write_audit_log(admin, "change_user_password", target_type="user", target_id=user_id)
 
-    write_audit_log(sb, admin, "change_user_password", target_type="user", target_id=user_id)
-
-
-
-# ── STATS ─────────────────────────────────────────────────────────────────────
 
 @router.get("/stats", response_model=AdminStatsOut)
 def get_stats(admin: dict = Depends(get_admin_user)):
-    sb = get_admin_supabase()
+    _require_db()
+    total_users = fetchval("SELECT COUNT(*) FROM users") or 0
 
-    # Total users
-    users_res = sb.table("users").select("id", count="exact").execute()
-    total_users = users_res.count or 0
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    new_users_this_week = fetchval(
+        "SELECT COUNT(*) FROM users WHERE created_at >= %s",
+        (week_ago,),
+    ) or 0
 
-    # New users this week
-    week_ago = (datetime.utcnow() - timedelta(days=7)).isoformat()
-    new_res = sb.table("users").select("id", count="exact").gte("created_at", week_ago).execute()
-    new_users_this_week = new_res.count or 0
-
-    # Admins
-    admins_res = sb.table("admins").select("id, is_active").execute()
-    all_admins = admins_res.data or []
+    all_admins = fetchall("SELECT id, is_active FROM admins")
     total_admins = len(all_admins)
     active_admins = sum(1 for a in all_admins if a.get("is_active", True))
 
-    # Total course selections
-    courses_res = sb.table("user_courses").select("id", count="exact").execute()
-    total_course_selections = courses_res.count or 0
+    total_course_selections = fetchval("SELECT COUNT(*) FROM user_courses") or 0
 
-    # Registrations last 30 days — group by day
-    thirty_ago = (datetime.utcnow() - timedelta(days=30)).isoformat()
-    reg_res = sb.table("users").select("created_at").gte("created_at", thirty_ago).execute()
-    from collections import Counter
+    thirty_ago = datetime.utcnow() - timedelta(days=30)
+    reg_rows = fetchall(
+        "SELECT created_at FROM users WHERE created_at >= %s",
+        (thirty_ago,),
+    )
     day_counts: Counter = Counter()
-    for row in (reg_res.data or []):
-        day = row["created_at"][:10]  # "YYYY-MM-DD"
+    for row in reg_rows:
+        created = row["created_at"]
+        day = created.strftime("%Y-%m-%d") if isinstance(created, datetime) else str(created)[:10]
         day_counts[day] += 1
 
     registrations_last_30_days = sorted(
