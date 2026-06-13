@@ -780,6 +780,15 @@ html[data-theme="dark"],
   }
 }
 
+@media (max-width: 767px) {
+  .landing-shimmer-text {
+    animation: none;
+    background: none;
+    color: var(--landing-accent);
+    -webkit-text-fill-color: var(--landing-accent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

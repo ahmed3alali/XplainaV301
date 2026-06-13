@@ -1,6 +1,7 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { usePreferSimpleMotion } from '@/hooks/usePreferSimpleMotion'
 import { easeOutExpo } from './motion'
 
 const wordChild = {
@@ -29,7 +30,7 @@ export function RevealWords({
   animateOnMount = false,
   staggerBy = 0.038,
 }) {
-  const reduce = useReducedMotion()
+  const reduce = usePreferSimpleMotion()
   const words = text.split(' ')
   const MotionTag = motion[Tag] || motion.span
 
@@ -64,7 +65,7 @@ export function RevealChars({
   animateOnMount = false,
   once = true,
 }) {
-  const reduce = useReducedMotion()
+  const reduce = usePreferSimpleMotion()
   const chars = text.split('')
 
   if (reduce) {
@@ -99,7 +100,7 @@ export function RevealChars({
 }
 
 export function ShimmerText({ children, className = '' }) {
-  const reduce = useReducedMotion()
+  const reduce = usePreferSimpleMotion()
 
   if (reduce) {
     return <span className={className}>{children}</span>
@@ -116,7 +117,7 @@ export function BlurReveal({
   once = true,
   animateOnMount = false,
 }) {
-  const reduce = useReducedMotion()
+  const reduce = usePreferSimpleMotion()
   const MotionTag = motion[Tag] || motion.p
 
   if (reduce) {

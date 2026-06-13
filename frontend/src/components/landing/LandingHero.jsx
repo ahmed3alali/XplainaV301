@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { usePreferSimpleMotion } from '@/hooks/usePreferSimpleMotion'
 import { fadeUp, stagger, easeOutExpo } from './motion'
 import { StudentPortrait } from './StudentPortrait'
 import { RevealWords, RevealChars, ShimmerText, BlurReveal } from './AnimatedText'
@@ -10,6 +11,7 @@ import { RevealWords, RevealChars, ShimmerText, BlurReveal } from './AnimatedTex
 export function LandingHero({ status }) {
   const router = useRouter()
   const reduce = useReducedMotion()
+  const simpleText = usePreferSimpleMotion()
   const { scrollY } = useScroll()
   const collageY = useTransform(scrollY, [0, 500], [0, 70])
   const isAuth = status === 'authenticated'
@@ -39,13 +41,19 @@ export function LandingHero({ status }) {
           <p className="landing-display mt-3 text-2xl font-semibold sm:text-3xl">
             <RevealWords text="Welcome to" animateOnMount delay={0.55} as="span" />
             {' '}
-            <motion.span
-              initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 0.5, delay: 0.78, ease: easeOutExpo }}
-            >
-              <ShimmerText>Claripath.dev</ShimmerText>
-            </motion.span>
+            {simpleText ? (
+              <span>
+                <ShimmerText>Claripath.dev</ShimmerText>
+              </span>
+            ) : (
+              <motion.span
+                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.5, delay: 0.78, ease: easeOutExpo }}
+              >
+                <ShimmerText>Claripath.dev</ShimmerText>
+              </motion.span>
+            )}
           </p>
 
           <BlurReveal
